@@ -1,3 +1,4 @@
 *.py
 *.go
 !reactor_simulation.py
+node_modules

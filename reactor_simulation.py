@@ -30,21 +30,6 @@ def setColumn(z: int, x: int, block: Block):
     
     reactorMap[z][x] = block
 
-# setColumn(0, 0, Block.ReactorControlRod)
-# setColumn(0, 4, Block.ReactorControlRod)
-# setColumn(1, 3, Block.ReactorControlRod)
-# setColumn(3, 1, Block.ReactorControlRod)
-# setColumn(3, 3, Block.ReactorControlRod)
-# setColumn(3, 5, Block.ReactorControlRod)
-# setColumn(1, 0, Block.Copper)
-# setColumn(2, 0, Block.Copper)
-# setColumn(3, 0, Block.Copper)
-# setColumn(4, 0, Block.Copper)
-# setColumn(1, 2, Block.Iron)
-# setColumn(3, 2, Block.Iron)
-# setColumn(2, 3, Block.Copper)
-# setColumn(1, 1, Block.Gold)
-
 setColumn(3, 3, Block.ReactorControlRod)
 setColumn(3, 1, Block.ReactorControlRod)
 setColumn(0, 4, Block.ReactorControlRod)
@@ -97,32 +82,7 @@ externalSurfaceArea = 2 * (
 )
 AMBIENT_TEMPERATURE = 20
 
-moderators = {
-    Block.Iron: {
-        "absorption": 0.5, 
-        "heatEfficiency": 0.75, 
-        "moderation": 1.4, 
-        "heatConductivity": 0.6
-        },
-    Block.Air: {
-        "absorption": 0.1, 
-        "heatEfficiency": 0.25, 
-        "moderation": 1.1, 
-        "heatConductivity": 0.05
-        },
-    Block.Gold: {
-        "absorption": 0.52, 
-        "heatEfficiency": 0.80, 
-        "moderation": 1.45, 
-        "heatConductivity": 2
-        },
-    Block.Copper: {
-        "absorption": 0.50, 
-        "heatEfficiency": 0.75, 
-        "moderation": 1.40, 
-        "heatConductivity": 1
-        }
-}
+# absorption, heatEfficiency, inverse-moderation, heatConductivity
 faster_moderators = {
     Block.Iron: (0.5, 0.75, 1 / 1.4, 0.6),
     Block.Air: (0.1, 0.25, 1 / 1.1, 0.05),
@@ -152,12 +112,12 @@ def calculateReactorHeatTransferCoefficient():
             currentPos = (rod[0] + direction[0], rod[1] + direction[1])
             if (currentPos[0] < 0 or currentPos[0] >= len(reactorMap[0]) or
                 currentPos[1] < 0 or currentPos[1] >= len(reactorMap)):
-                REACTOR_HEAT_TRANSFER_COEFFICIENT += moderators[Block.Iron]["heatConductivity"]
+                REACTOR_HEAT_TRANSFER_COEFFICIENT += faster_moderators[Block.Iron][3]
                 continue
             if reactorMap[currentPos[1]][currentPos[0]] == Block.ReactorControlRod:
-                REACTOR_HEAT_TRANSFER_COEFFICIENT += moderators[Block.Air]["heatConductivity"]
+                REACTOR_HEAT_TRANSFER_COEFFICIENT += faster_moderators[Block.Air][3]
                 continue
-            REACTOR_HEAT_TRANSFER_COEFFICIENT += moderators[reactorMap[currentPos[1]][currentPos[0]]]["heatConductivity"]
+            REACTOR_HEAT_TRANSFER_COEFFICIENT += faster_moderators[reactorMap[currentPos[1]][currentPos[0]]][3]
 
 calculateReactorHeatTransferCoefficient()
 
@@ -170,10 +130,12 @@ ENERGY_PER_RADIATION_UNIT = 10
 
 rawRadIntensity = fuelAmount * currentFuel["fissionEventsPerFuelUnit"]
 controlRodModifier = (100 - insertionRatio) / 100
-scaledRadIntensity = rawRadIntensity ** currentFuel["standardReactivity"]
-scaledRadIntensity = ((scaledRadIntensity / numControlRods) ** (currentFuel["standardReactivity"])) * numControlRods
-scaledRadIntensity = scaledRadIntensity * controlRodModifier
+# scaledRadIntensity = rawRadIntensity ** currentFuel["standardReactivity"]
+# scaledRadIntensity = ((scaledRadIntensity / numControlRods) ** (currentFuel["standardReactivity"])) * numControlRods
+# scaledRadIntensity = scaledRadIntensity * controlRodModifier
 rawRadIntensity = rawRadIntensity * controlRodModifier
+a = currentFuel["standardReactivity"]
+scaledRadIntensity = rawRadIntensity ** (a * a) * controlRodModifier ** (1 - a * a) * numControlRods ** (1 - a)
 insertion = insertionRatio / 100
 moderationFactor = currentFuel["moderationFactor"]
 moderationFactor += moderationFactor * insertion + insertion
@@ -269,7 +231,6 @@ REACTOR_HEAT_LOSS_CONDUCTIVITY = 0.001
 REACTOR_HEAT_LOSS_COEFFICIENT = REACTOR_HEAT_LOSS_CONDUCTIVITY * externalSurfaceArea
 COOLANT_SYSTEM_HEAT_TRANSFER_COEFFICIENT = 0.6 * internalSurfaceArea
 exposed_sides = 2
-# REACTOR_HEAT_TRANSFER_COEFFICIENT = (0.6 + currentModerator["heatConductivity"]) * exposed_sides * fuel_rod_height 
 
 total_energy = 0
 
@@ -309,27 +270,18 @@ def transferHeatBetweenFuelAndReactor():
         reactorHeat = getTemperatureFromVolumeAndEnergy(reactorVolume, reactorEnergy)
 
 def update():
-    # Perform irridation
     global fuelHeat, reactorHeat, fertility, reactorVolume
     
     data = None
     for origin in getRodPositions():
-        # Perform irridation
         data = radiate(origin)
         fuelHeat += data["fuelHeatChange"]
         reactorHeat += data["environmentHeatChange"]
-        # print("FUEL CONSUMED LAST: " + str(data["fuelUsage"]))
-        # print("FUEL HEAT: ", str(fuelHeat), "REACTOR HEAT: ", str(reactorHeat))
-        # performRadiationDecay
         fertility = max(0, fertility - max(0.1, fertility * 0.05))
 
-        # HEAT TRANSFERS
         transferHeatBetweenFuelAndReactor()
         transferHeatBetweenReactorAndCoolant()
         performPassiveHeatLoss()
-
-        # if fuelHeat < 0: fuelHeat = 0
-        # if reactorHeat < 0: reactorHeat = 0
 
     return fuelHeat, reactorHeat, data
 
@@ -353,44 +305,10 @@ def loop(_insertionRatio=0, _iterateAmount=250):
 
     return amtPerBlock / output[2]["fuelUsage"], total_energy
 
+
+
 start = time.perf_counter()
-
-# Started at time: 0.49s
-# Optimized to so far: 0.13s
 loop(50, 50 * 100)
-
-# insertionRatios = []
-# outputResults = []
-# energyResults = []
-# maxIr = 0
-
-# step = 1
-# for ir in range(int(100 / step)):
-#     val = ir * step
-#     insertionRatios.append(val)
-
-#     res = loop(val, 50)
-#     outputResults.append(res[0])
-#     energyResults.append(res[1])
-
-#     if ir == 0 or res[0] > outputResults[int(maxIr / step)]:
-#         maxIr = int(ir * step)
-
-# outputResults.append(0)
-# insertionRatios.append(100)
-# energyResults.append(0)
-
 end = time.perf_counter()
 print(f"Time: {end-start:.6f} seconds")
-
-# import matplotlib as mpl
-# import matplotlib.pyplot as plt
-
-# plt.scatter(insertionRatios, outputResults, c=energyResults, cmap='viridis', zorder=2)
-# plt.colorbar(label="FE/t")
-# plt.xlabel("Insertion Ratio (%)")
-# plt.ylabel("Fuel Efficiency")
-# plt.title("Fuel Efficiency vs Insertion Ratio")
-# plt.show()
-
-# print(maxIr)
+# Time: 0.13s

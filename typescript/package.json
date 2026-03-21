@@ -1,8 +1,0 @@
-{
-  "devDependencies": {
-    "@types/node": "^25.5.0"
-  },
-  "dependencies": {
-    "perf_hooks": "^0.0.1"
-  }
-}

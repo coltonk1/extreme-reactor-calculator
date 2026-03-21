@@ -1,11 +1,18 @@
-This project is based on logic and structure from Extreme Reactors 2,
-developed by ZeroNoRyouki and contributors.
+This project incorporates logic and structure from Extreme Reactors 2,
+developed by ZeroNoRyouki and contributors:
+https://github.com/ZeroNoRyouki/ExtremeReactors2
 
-Source: https://github.com/ZeroNoRyouki/ExtremeReactors2
+This project also includes textures from:
+Extreme Reactors 2 (MIT License)
+Mekanism (MIT License)
+https://github.com/mekanism/Mekanism
 
 The MIT License
 
 Copyright (c) 2016-2025 ZeroNoRyouki
+
+Copyright (c) 2017-2025 Aidan C. Brady
+
 Copyright (c) 2026 Colton Karaffa
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

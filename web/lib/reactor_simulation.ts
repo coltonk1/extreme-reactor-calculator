@@ -356,54 +356,47 @@ class Reactor {
 
 enum Block {
   Air = 'air',
-  ReactorControlRod = 'reactorcontrolrod',
-
-  // Solids
-  Apetite = 'apetite',
-  Cinnabar = 'cinnbar',
   Iron = 'iron',
-  Manasteel = 'manasteel',
-  Elementium = 'elementium',
-  Nickel = 'nickel',
   Gold = 'gold',
   Diamond = 'diamond',
-  Netherite = 'netherite',
-  Terrasteel = 'terrasteel',
   Emerald = 'emerald',
-  Colorless = 'colorless',
   Copper = 'copper',
-  Brass = 'brass',
-  Osmium = 'osmium',
-  RefinedObsidian = 'refinedobsidian',
-  RefinedGlowstone = 'refinedglowstone',
-  Bronze = 'bronze',
-  Zinc = 'zinc',
-  Aluminum = 'aluminum',
-  Steel = 'steel',
-  Invar = 'invar',
-  Tin = 'tin',
-  Silver = 'silver',
-  Signalum = 'signalum',
-  Lumium = 'lumium',
-  Lead = 'lead',
-  Electrum = 'electrum',
-  Platinum = 'platinum',
-  Enderium = 'enderium',
-  Graphite = 'graphite',
+  Netherite = 'netherite',
+  // Colorless = 'colorless',
   Ice = 'ice',
-  DryIce = 'dryice',
+  Water = 'water',
 
-  // Liquids
+  ReactorControlRod = 'reactorcontrolrod',
+  Graphite = 'graphite',
+  // DryIce = 'dryice',
   Cryomisi = 'cryomisi',
   Tangerium = 'tangerium',
   Redfrigium = 'redfrigium',
-  Water = 'water',
-  // LiquidStarlight = 'liquidstarlight',
-  // LifeEssenceFluid = 'lifeessencefluid',
-  // HydrofluoricAcid = 'hydrofluoricacid',
-  // Sodium = 'sodium',
-  // HydrogenChloride = 'hydrogenchloride',
-  // Ethene = 'ethene',
+
+  Bronze = 'bronze',
+  Steel = 'steel',
+  Tin = 'tin',
+  Osmium = 'osmium',
+  Nickel = 'nickel',
+  Brass = 'brass',
+  Zinc = 'zinc',
+  Aluminum = 'aluminum',
+  Silver = 'silver',
+  Lead = 'lead',
+  Platinum = 'platinum',
+  Invar = 'invar',
+
+  RefinedObsidian = 'refinedobsidian',
+  RefinedGlowstone = 'refinedglowstone',
+  Cinnabar = 'cinnabar',
+  Enderium = 'enderium',
+  Electrum = 'electrum',
+  Signalum = 'signalum',
+  Lumium = 'lumium',
+  Manasteel = 'manasteel',
+  Elementium = 'elementium',
+  Terrasteel = 'terrasteel',
+  Apatite = 'apatite',
 }
 
 const BlockNames = new Map([
@@ -411,7 +404,7 @@ const BlockNames = new Map([
   [Block.ReactorControlRod, 'Control Rod'],
 
   // Solids
-  [Block.Apetite, 'Apatite'],
+  [Block.Apatite, 'Apatite'],
   [Block.Cinnabar, 'Cinnabar'],
   [Block.Iron, 'Iron Block'],
   [Block.Manasteel, 'Manasteel Block'],
@@ -422,7 +415,7 @@ const BlockNames = new Map([
   [Block.Netherite, 'Netherite Block'],
   [Block.Terrasteel, 'Terrasteel Block'],
   [Block.Emerald, 'Emerald Block'],
-  [Block.Colorless, 'Glass'],
+  // [Block.Colorless, 'Glass'],
   [Block.Copper, 'Copper Block'],
   [Block.Brass, 'Brass Block'],
   [Block.Osmium, 'Osmium Block'],
@@ -443,7 +436,7 @@ const BlockNames = new Map([
   [Block.Enderium, 'Enderium Block'],
   [Block.Graphite, 'Graphite Block'],
   [Block.Ice, 'Ice'],
-  [Block.DryIce, 'Dry Ice'],
+  // [Block.DryIce, 'Dry Ice'],
 
   // Liquids
   [Block.Cryomisi, 'Cryomisi'],
@@ -508,7 +501,7 @@ function setupModerators() {
   addModerator(Block.Air, [0.1, 0.25, 1 / 1.1, 0.05]);
 
   // Solids
-  addModerator(Block.Apetite, [0.48, 0.73, 1 / 1.3, Conductivity.Stone]);
+  addModerator(Block.Apatite, [0.48, 0.73, 1 / 1.3, Conductivity.Stone]);
   addModerator(Block.Cinnabar, [0.48, 0.75, 1 / 1.32, Conductivity.Stone]);
   addModerator(Block.Iron, [0.5, 0.75, 1 / 1.4, Conductivity.Iron]);
   addModerator(Block.Manasteel, [0.6, 0.75, 1 / 1.5, Conductivity.Iron]);
@@ -519,7 +512,7 @@ function setupModerators() {
   addModerator(Block.Netherite, [0.55, 0.95, 1 / 1.65, Conductivity.Diamond]);
   addModerator(Block.Terrasteel, [0.57, 0.87, 1 / 1.52, Conductivity.Diamond]);
   addModerator(Block.Emerald, [0.55, 0.85, 1 / 1.5, Conductivity.Emerald]);
-  addModerator(Block.Colorless, [0.2, 0.25, 1 / 1.1, Conductivity.Glass]);
+  // addModerator(Block.Colorless, [0.2, 0.25, 1 / 1.1, Conductivity.Glass]);
   addModerator(Block.Copper, [0.5, 0.75, 1 / 1.4, Conductivity.Copper]);
   addModerator(Block.Brass, [0.52, 0.78, 1 / 1.42, Conductivity.Copper]);
   addModerator(Block.Osmium, [0.51, 0.77, 1 / 1.41, Conductivity.Copper]);
@@ -540,7 +533,7 @@ function setupModerators() {
   addModerator(Block.Enderium, [0.6, 0.88, 1 / 1.6, Conductivity.Diamond]);
   addModerator(Block.Graphite, [0.1, 0.5, 1 / 2.0, Conductivity.Gold]);
   addModerator(Block.Ice, [0.33, 0.33, 1 / 1.15, Conductivity.Water]);
-  addModerator(Block.DryIce, [0.42, 0.52, 1 / 1.32, Conductivity.Water]);
+  // addModerator(Block.DryIce, [0.42, 0.52, 1 / 1.32, Conductivity.Water]);
 
   // Fluids
   addModerator(Block.Cryomisi, [0.75, 0.55, 1 / 1.6, Conductivity.Emerald]);

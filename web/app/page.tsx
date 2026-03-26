@@ -2,6 +2,7 @@
 import { Reactor, Block, BlockNames, Fuel } from '@/lib/reactor_simulation';
 
 import Image from 'next/image';
+import React from 'react';
 import { useState } from 'react';
 
 export default function Home() {
@@ -29,17 +30,33 @@ export default function Home() {
     console.log((performance.now() - start) / 1000);
   };
 
+  const nextTitlePoints = [Block.ReactorControlRod, Block.Bronze, Block.RefinedObsidian];
+  const sectionTitles = ['Vanilla', 'Extreme Reactors', 'General Metals', 'Other'];
+  let titleIndex = 0;
+
   return (
     <div className="flex flex-1 max-w-7xl mx-auto">
       <div className="px-16 grid h-fit text-white/90 gap-2 grid-cols-3">
-        {Object.values(Block).map(block => (
-          <div title={BlockNames.get(block)} className={`${block === selectedBlock && 'bg-neutral-500 hover:bg-neutral-500'} flex items-center gap-2 border border-black/50 bg-black/10 px-2 py-1 rounded-sm cursor-pointer select-none hover:bg-black/50`} key={block} onClick={() => setSelectedBlock(block)}>
-            <div className="relative w-8 h-8 shrink-0 border border-white/75">
-              <Image src={`/assets/blocks/${block}.png`} alt={block} fill className="object-contain" style={{ imageRendering: 'pixelated' }} />
-            </div>
-            <div className="truncate">{BlockNames.get(block)}</div>
-          </div>
-        ))}
+        <div className="col-span-3 px-4 py-2 bg-neutral-900 rounded shadow-md mt-8">Vanilla</div>
+        {Object.values(Block).map(block => {
+          let newSection = null;
+          if (block === nextTitlePoints[titleIndex]) {
+            titleIndex++;
+            newSection = <div className="col-span-3 px-4 py-2 bg-neutral-900 rounded shadow-md mt-8">{sectionTitles[titleIndex]}</div>;
+          }
+
+          return (
+            <React.Fragment key={block}>
+              {newSection}
+              <div title={BlockNames.get(block)} className={`${block === selectedBlock && 'bg-neutral-500 hover:bg-neutral-500'} flex items-center gap-2 border border-black/50 bg-black/10 px-2 py-1 rounded-sm cursor-pointer select-none hover:bg-black/50`} onClick={() => setSelectedBlock(block)}>
+                <div className="relative w-8 h-8 shrink-0 border border-white/75">
+                  <Image src={`/assets/blocks/${block}.png`} alt={block} sizes="100%" fill className="object-contain" style={{ imageRendering: 'pixelated' }} />
+                </div>
+                <div className="truncate">{BlockNames.get(block)}</div>
+              </div>
+            </React.Fragment>
+          );
+        })}
       </div>
       <div className="bg-white h-fit">
         <p>Fuel Heat: {reactor.getFuelHeat().toFixed(0)} C</p>
@@ -58,10 +75,10 @@ export default function Home() {
         </div>
 
         <div
-          className="grid"
+          className="grid w-fit"
           style={{
-            gridTemplateColumns: `repeat(${reactor.width + 2}, minmax(0, 1fr))`,
-            gridTemplateRows: `repeat(${reactor.depth + 2}, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(${reactor.width + 2}, minmax(1.75rem, 1fr))`,
+            gridTemplateRows: `repeat(${reactor.depth + 2}, minmax(1.75rem, 1fr))`,
           }}
         >
           {Array.from({ length: (reactor.width + 2) * (reactor.depth + 2) }, (_, i) => {
@@ -97,7 +114,7 @@ function ReactorItem({ x, z, casing, rows, cols, block, updateReactor }: { x: nu
 
   return (
     <div
-      className={`bg-white/10 hover:bg-white ${!casing && 'cursor-pointer hover:opacity-35'} h-7 w-7 bg-cover`}
+      className={`bg-white/10 hover:bg-white ${!casing && 'cursor-pointer hover:opacity-35'} bg-cover`}
       style={{
         backgroundImage: `${getCasingImage(x, z)}`,
       }}

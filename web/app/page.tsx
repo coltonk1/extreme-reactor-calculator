@@ -35,20 +35,20 @@ export default function Home() {
   let titleIndex = 0;
 
   return (
-    <div className="flex flex-1 max-w-7xl mx-auto">
-      <div className="px-16 grid h-fit text-white/90 gap-2 grid-cols-3">
-        <div className="col-span-3 px-4 py-2 bg-neutral-900 rounded shadow-md mt-8">Vanilla</div>
+    <div className="flex flex-1 mx-auto w-full h-full">
+      <div className="px-8 grid text-white/90 gap-2 grid-cols-2 overflow-y-scroll pb-16 bg-neutral-900 border-r border-black">
+        <div className="col-span-2 px-4 py-2 font-bold bg-neutral-300 text-neutral-900 rounded shadow-md mt-8">Vanilla</div>
         {Object.values(Block).map(block => {
           let newSection = null;
           if (block === nextTitlePoints[titleIndex]) {
             titleIndex++;
-            newSection = <div className="col-span-3 px-4 py-2 bg-neutral-900 rounded shadow-md mt-8">{sectionTitles[titleIndex]}</div>;
+            newSection = <div className="col-span-2 px-4 py-2 font-bold bg-neutral-300 text-neutral-900 rounded shadow-md mt-8">{sectionTitles[titleIndex]}</div>;
           }
 
           return (
             <React.Fragment key={block}>
               {newSection}
-              <div title={BlockNames.get(block)} className={`${block === selectedBlock && 'bg-neutral-500 hover:bg-neutral-500'} flex items-center gap-2 border border-black/50 bg-black/10 px-2 py-1 rounded-sm cursor-pointer select-none hover:bg-black/50`} onClick={() => setSelectedBlock(block)}>
+              <div title={BlockNames.get(block)} className={`${block === selectedBlock && 'bg-neutral-500 hover:bg-neutral-500'} flex items-center gap-2 bg-neutral-300/10 p-1.5 rounded-sm cursor-pointer select-none hover:bg-black/50`} onClick={() => setSelectedBlock(block)}>
                 <div className="relative w-8 h-8 shrink-0 border border-white/75">
                   <Image src={`/assets/blocks/${block}.png`} alt={block} sizes="100%" fill className="object-contain" style={{ imageRendering: 'pixelated' }} />
                 </div>
@@ -58,35 +58,72 @@ export default function Home() {
           );
         })}
       </div>
-      <div className="bg-white h-fit">
-        <p>Fuel Heat: {reactor.getFuelHeat().toFixed(0)} C</p>
-        <p>Reactor Heat: {reactor.getReactorHeat().toFixed(0)} C</p>
-        <p>Power: {reactor.getTotalEnergy().toFixed(2)} FE/t</p>
-        <p>Fuel Usage: {reactor.getFuelUsage().toFixed(4)} mB/t</p>
+      <div className="flex flex-col gap-10 items-center flex-1 overflow-auto min-h-0">
+        <div className="m-auto">
+          <div
+            className="grid w-fit m-12"
+            style={{
+              gridTemplateColumns: `repeat(${reactor.width + 2}, minmax(1.75rem, 1fr))`,
+              gridTemplateRows: `repeat(${reactor.depth + 2}, minmax(1.75rem, 1fr))`,
+            }}
+          >
+            {Array.from({ length: (reactor.width + 2) * (reactor.depth + 2) }, (_, i) => {
+              const x = i % (reactor.width + 2);
+              const z = Math.floor(i / (reactor.width + 2));
+              const casing = x == 0 || z == 0 || x == reactor.width + 2 - 1 || z == reactor.depth + 2 - 1;
+              return <ReactorItem key={i} x={x - 1} z={z - 1} casing={casing} rows={reactor.depth + 2} cols={reactor.width + 2} block={!casing ? reactorMap[z - 1][x - 1] : null} updateReactor={updateReactor} />;
+            })}
+          </div>
+        </div>
       </div>
-      <div className="w-fit flex-col  gap-10 justify-center items-center flex">
-        <div className="w-fit px-10 py-3 bg-white rounded-lg grid grid-cols-2">
-          X:
-          <input value={reactor.width} onChange={e => resizeReactor(Number(e.target.value), rows, height)} />
-          Y:
-          <input value={reactor.height} onChange={e => resizeReactor(cols, rows, Number(e.target.value))} />
-          Z:
-          <input value={reactor.depth} onChange={e => resizeReactor(cols, Number(e.target.value), height)} />
+
+      <div className="w-fit border-l border-black bg-neutral-900 px-6 py-5 space-y-5 text-neutral-300">
+        <div className="space-y-2">
+          <div>
+            <h2 className="text-lg font-semibold">Reactor inner size</h2>
+            <p className="text-xs text-neutral-300/60">Changing dimensions resets the reactor</p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 w-fit">
+            <label className="flex flex-col text-sm">
+              X
+              <input className="mt-1 w-20 px-2 py-1 rounded bg-white text-neutral-900" value={reactor.width} onChange={e => resizeReactor(Number(e.target.value), rows, height)} />
+            </label>
+
+            <label className="flex flex-col text-sm">
+              <p>
+                Y <span className="text-xs text-neutral-300/60">(height)</span>
+              </p>
+              <input className="mt-1 w-20 px-2 py-1 rounded bg-white text-neutral-900" value={reactor.height} onChange={e => resizeReactor(cols, rows, Number(e.target.value))} />
+            </label>
+
+            <label className="flex flex-col text-sm">
+              Z
+              <input className="mt-1 w-20 px-2 py-1 rounded bg-white text-neutral-900" value={reactor.depth} onChange={e => resizeReactor(cols, Number(e.target.value), height)} />
+            </label>
+          </div>
         </div>
 
-        <div
-          className="grid w-fit"
-          style={{
-            gridTemplateColumns: `repeat(${reactor.width + 2}, minmax(1.75rem, 1fr))`,
-            gridTemplateRows: `repeat(${reactor.depth + 2}, minmax(1.75rem, 1fr))`,
-          }}
-        >
-          {Array.from({ length: (reactor.width + 2) * (reactor.depth + 2) }, (_, i) => {
-            const x = i % (reactor.width + 2);
-            const z = Math.floor(i / (reactor.width + 2));
-            const casing = x == 0 || z == 0 || x == reactor.width + 2 - 1 || z == reactor.depth + 2 - 1;
-            return <ReactorItem key={i} x={x - 1} z={z - 1} casing={casing} rows={reactor.depth + 2} cols={reactor.width + 2} block={!casing ? reactorMap[z - 1][x - 1] : null} updateReactor={updateReactor} />;
-          })}
+        <div className="space-y-2">
+          <div>
+            <h2 className="text-lg font-semibold">Reactor stats</h2>
+            <p className="text-xs text-neutral-300/60">Values assume default mod configuration settings</p>
+          </div>
+          {reactor.getNumControlRods() === 0 && <div className="text-sm text-red-700 bg-red-100 px-3 py-2 rounded w-full">Place a control rod for stats to update</div>}
+
+          <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+            <span className="text-neutral-300/60">Fuel Heat</span>
+            <span>{reactor.getFuelHeat().toFixed(0)} C</span>
+
+            <span className="text-neutral-300/60">Reactor Heat</span>
+            <span>{reactor.getReactorHeat().toFixed(0)} C</span>
+
+            <span className="text-neutral-300/60">Power</span>
+            <span>{reactor.getTotalEnergy().toFixed(2)} FE/t</span>
+
+            <span className="text-neutral-300/60">Fuel Usage</span>
+            <span>{reactor.getFuelUsage().toFixed(4)} mB/t</span>
+          </div>
         </div>
       </div>
     </div>

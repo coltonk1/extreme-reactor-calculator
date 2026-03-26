@@ -9,9 +9,9 @@ https://github.com/mekanism/Mekanism
 
 The MIT License
 
-Copyright (c) 2016-2025 ZeroNoRyouki
+Copyright (c) 2016-2025 ZeroNoRyouki (Extreme Reactors 2)
 
-Copyright (c) 2017-2025 Aidan C. Brady
+Copyright (c) 2017-2025 Aidan C. Brady (Mekanism textures)
 
 Copyright (c) 2026 Colton Karaffa
 

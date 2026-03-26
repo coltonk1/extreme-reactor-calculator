@@ -368,7 +368,6 @@ enum Block {
 
   ReactorControlRod = 'reactorcontrolrod',
   Graphite = 'graphite',
-  // DryIce = 'dryice',
   Cryomisi = 'cryomisi',
   Tangerium = 'tangerium',
   Redfrigium = 'redfrigium',
@@ -388,6 +387,7 @@ enum Block {
 
   RefinedObsidian = 'refinedobsidian',
   RefinedGlowstone = 'refinedglowstone',
+  DryIce = 'dryice',
   Cinnabar = 'cinnabar',
   Enderium = 'enderium',
   Electrum = 'electrum',
@@ -436,7 +436,7 @@ const BlockNames = new Map([
   [Block.Enderium, 'Enderium Block'],
   [Block.Graphite, 'Graphite Block'],
   [Block.Ice, 'Ice'],
-  // [Block.DryIce, 'Dry Ice'],
+  [Block.DryIce, 'Dry Ice'],
 
   // Liquids
   [Block.Cryomisi, 'Cryomisi'],
@@ -533,7 +533,7 @@ function setupModerators() {
   addModerator(Block.Enderium, [0.6, 0.88, 1 / 1.6, Conductivity.Diamond]);
   addModerator(Block.Graphite, [0.1, 0.5, 1 / 2.0, Conductivity.Gold]);
   addModerator(Block.Ice, [0.33, 0.33, 1 / 1.15, Conductivity.Water]);
-  // addModerator(Block.DryIce, [0.42, 0.52, 1 / 1.32, Conductivity.Water]);
+  addModerator(Block.DryIce, [0.42, 0.52, 1 / 1.32, Conductivity.Water]);
 
   // Fluids
   addModerator(Block.Cryomisi, [0.75, 0.55, 1 / 1.6, Conductivity.Emerald]);

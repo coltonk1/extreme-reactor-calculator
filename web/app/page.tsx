@@ -25,7 +25,8 @@ export default function Home() {
   const updateReactor = (x: number, z: number) => {
     reactor.setCol(z, x, selectedBlock);
     const start = performance.now();
-    reactor.simulate(250);
+    reactor.reset();
+    reactor.simulate(1000);
     setReactor(reactor.clone());
     console.log((performance.now() - start) / 1000);
   };

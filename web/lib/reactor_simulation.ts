@@ -352,6 +352,14 @@ class Reactor {
 
     return copy;
   }
+
+  reset() {
+    this.totalEnergy = 0;
+    this.fertility = 0;
+    this.fuelHeat = 0;
+    this.reactorHeat = 0;
+    this.fuelUsage = 0;
+  }
 }
 
 enum Block {

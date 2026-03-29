@@ -2,7 +2,10 @@ class Reactor {
   readonly width: number;
   readonly depth: number;
   readonly height: number;
-  readonly insertionRatio: number;
+  private insertionRatio: number;
+  getInsertionRatio() {
+    return this.insertionRatio;
+  }
 
   private fuelHeat = 0;
   getFuelHeat() {
@@ -80,6 +83,11 @@ class Reactor {
 
   private heatTransferFactor = 0;
 
+  private blockCountsInLayer = new Map<Block, number>();
+  getLayerBlockCounts(): ReadonlyMap<Block, number> {
+    return new Map(this.blockCountsInLayer);
+  }
+
   constructor(width: number, depth: number, height: number, insertionRatio: number, currentFuel: Fuel) {
     this.width = width;
     this.depth = depth;
@@ -102,6 +110,11 @@ class Reactor {
     this.reactorHeatLossCoefficient = Reactor.reactorHeatLossConductivity * this.exteriorSurfaceArea;
     this.coolantSystemHeatTransferCoefficient = 0.6 * this.innerSurfaceArea;
     this.heatTransferFactor = this.reactorHeatTransferCoefficient * this.height;
+
+    this.blockCountsInLayer.set(Block.Air, this.width * this.depth);
+    this.blockCountsInLayer.set(Block.ReactorCasing, (this.width + 2) * (this.depth + 2) * (this.height + 2) - this.innerReactorVolume - 2);
+    this.blockCountsInLayer.set(Block.ReactorController, 1);
+    this.blockCountsInLayer.set(Block.ReactorAccessPort, 1);
   }
 
   #updateFuelConstants() {
@@ -142,11 +155,16 @@ class Reactor {
       const idx = this.rodPositions.findIndex(([rx, rz]) => rx === x && rz === z);
       if (idx !== -1) this.rodPositions.splice(idx, 1);
       this.#updateNumControlRods(this.numControlRods - 1);
+      this.blockCountsInLayer.set(Block.FuelRod, this.blockCountsInLayer.get(Block.FuelRod)! - 1);
+      this.blockCountsInLayer.set(Block.ReactorCasing, this.blockCountsInLayer.get(Block.ReactorCasing)! + 1);
     } else if (block === Block.ReactorControlRod) {
       this.rodPositions.push([x, z]);
-
       this.#updateNumControlRods(this.numControlRods + 1);
+      this.blockCountsInLayer.set(Block.FuelRod, (this.blockCountsInLayer.get(Block.FuelRod) || 0) + 1);
+      this.blockCountsInLayer.set(Block.ReactorCasing, this.blockCountsInLayer.get(Block.ReactorCasing)! - 1);
     }
+    this.blockCountsInLayer.set(block, (this.blockCountsInLayer.get(block) || 0) + 1);
+    this.blockCountsInLayer.set(previousBlock, this.blockCountsInLayer.get(previousBlock)! - 1);
 
     this.reactorMap[z][x] = block;
     this.#calcReactorHeatTransferCoefficient();
@@ -350,6 +368,8 @@ class Reactor {
 
     copy.#updateFuelConstants();
 
+    copy.blockCountsInLayer = new Map(this.blockCountsInLayer);
+
     return copy;
   }
 
@@ -359,6 +379,14 @@ class Reactor {
     this.fuelHeat = 0;
     this.reactorHeat = 0;
     this.fuelUsage = 0;
+  }
+
+  updateInsertionRatio(newInsertionRatio: number) {
+    if (newInsertionRatio < 0 || newInsertionRatio > 100) return;
+    this.insertionRatio = newInsertionRatio;
+    this.#updateFuelConstants();
+    this.reset();
+    this.simulate(1000);
   }
 }
 
@@ -375,6 +403,10 @@ enum Block {
   Water = 'water',
 
   ReactorControlRod = 'reactorcontrolrod',
+  FuelRod = 'fuelrod',
+  ReactorCasing = 'reactorcasing',
+  ReactorController = 'reactorcontroller',
+  ReactorAccessPort = 'accessport',
   Graphite = 'graphite',
   Cryomisi = 'cryomisi',
   Tangerium = 'tangerium',
@@ -409,7 +441,12 @@ enum Block {
 
 const BlockNames = new Map([
   [Block.Air, 'Air'],
-  [Block.ReactorControlRod, 'Control Rod'],
+  [Block.ReactorControlRod, 'Reactor Control Rod'],
+
+  [Block.FuelRod, 'Reactor Fuel Rod'],
+  [Block.ReactorCasing, 'Reactor Casing'],
+  [Block.ReactorController, 'Reactor Controller'],
+  [Block.ReactorAccessPort, 'Reactor Access Port'],
 
   // Solids
   [Block.Apatite, 'Apatite'],

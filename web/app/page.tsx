@@ -31,19 +31,56 @@ export default function Home() {
     console.log((performance.now() - start) / 1000);
   };
 
+  const findOptimalRatio = () => {
+    const start = performance.now();
+
+    let bestRatio = 0;
+    let bestEfficiency = 0;
+    for (let ratio = 0; ratio <= 100; ratio += 5) {
+      reactor.updateInsertionRatio(ratio);
+      const efficiency = reactor.getFuelUsage() > 0 ? reactor.getTotalEnergy() / reactor.getFuelUsage() : 0;
+      if (efficiency > bestEfficiency) {
+        bestEfficiency = efficiency;
+        bestRatio = ratio;
+      } else {
+        break;
+      }
+    }
+
+    bestEfficiency = 0;
+    for (let ratio = bestRatio - 5; ratio <= bestRatio + 5; ratio++) {
+      if (ratio < 0 || ratio > 100) continue;
+      reactor.updateInsertionRatio(ratio);
+      const efficiency = reactor.getFuelUsage() > 0 ? reactor.getTotalEnergy() / reactor.getFuelUsage() : 0;
+      if (efficiency > bestEfficiency) {
+        bestEfficiency = efficiency;
+        bestRatio = ratio;
+      } else {
+        break;
+      }
+    }
+    reactor.updateInsertionRatio(bestRatio);
+    setReactor(reactor.clone());
+
+    console.log(`Performance: ${(performance.now() - start) / 1000} seconds`);
+  };
+
   const nextTitlePoints = [Block.ReactorControlRod, Block.Bronze, Block.RefinedObsidian];
   const sectionTitles = ['Vanilla', 'Extreme Reactors', 'General Metals', 'Other'];
   let titleIndex = 0;
 
+  const reactorParts = [Block.FuelRod, Block.ReactorCasing, Block.ReactorController, Block.ReactorAccessPort];
+
   return (
     <div className="flex flex-1 mx-auto w-full h-full">
       <div className="px-8 grid text-white/90 gap-2 grid-cols-2 overflow-y-scroll pb-16 bg-neutral-900 border-r border-black">
-        <div className="col-span-2 px-4 py-2 font-bold bg-neutral-300 text-neutral-900 rounded shadow-md mt-8">Vanilla</div>
+        <div className="col-span-2 px-4 py-2 font-semibold bg-neutral-300 text-neutral-900 rounded shadow-md mt-8">Vanilla</div>
         {Object.values(Block).map(block => {
+          if (reactorParts.includes(block)) return;
           let newSection = null;
           if (block === nextTitlePoints[titleIndex]) {
             titleIndex++;
-            newSection = <div className="col-span-2 px-4 py-2 font-bold bg-neutral-300 text-neutral-900 rounded shadow-md mt-8">{sectionTitles[titleIndex]}</div>;
+            newSection = <div className="col-span-2 px-4 py-2 font-semibold bg-neutral-300 text-neutral-900 rounded shadow-md mt-8">{sectionTitles[titleIndex]}</div>;
           }
 
           return (
@@ -51,7 +88,7 @@ export default function Home() {
               {newSection}
               <div title={BlockNames.get(block)} className={`${block === selectedBlock && 'bg-neutral-500 hover:bg-neutral-500'} flex items-center gap-2 bg-neutral-300/10 p-1.5 rounded-sm cursor-pointer select-none hover:bg-black/50`} onClick={() => setSelectedBlock(block)}>
                 <div className="relative w-8 h-8 shrink-0 border border-white/75">
-                  <Image src={`/assets/blocks/${block}.png`} alt={block} sizes="100%" fill className="object-contain" style={{ imageRendering: 'pixelated' }} />
+                  <Image src={`/assets/blocks/${block}.png`} alt={block} sizes="100%" fill className="object-contain select-none pointer-events-none" style={{ imageRendering: 'pixelated' }} />
                 </div>
                 <div className="truncate">{BlockNames.get(block)}</div>
               </div>
@@ -78,13 +115,12 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="w-fit border-l border-black bg-neutral-900 px-6 py-5 space-y-5 text-neutral-300">
+      <div className="w-fit border-l border-black bg-neutral-900 px-6 py-5 space-y-5 text-neutral-300 overflow-auto">
         <div className="space-y-2">
           <div>
-            <h2 className="text-lg font-semibold">Reactor inner size</h2>
+            <h2 className="text-lg font-semibold">Reactor Inner Size</h2>
             <p className="text-xs text-neutral-300/60">Changing dimensions resets the reactor</p>
           </div>
-
           <div className="grid grid-cols-3 gap-4 w-fit">
             <label className="flex flex-col text-sm">
               X
@@ -107,7 +143,37 @@ export default function Home() {
 
         <div className="space-y-2">
           <div>
-            <h2 className="text-lg font-semibold">Reactor stats</h2>
+            <h2 className="text-lg font-semibold">Insertion Ratio</h2>
+          </div>
+          <div className="mb-4 flex gap-2">
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={Number(reactor.getInsertionRatio())}
+              onChange={e => {
+                reactor.updateInsertionRatio(Number(e.target.value));
+                setReactor(reactor.clone());
+              }}
+              className="w-full"
+            />
+            <span className="text-sm w-10 text-right">{reactor.getInsertionRatio()}%</span>
+          </div>
+          <button
+            className="py-2 px-4 text-sm bg-blue-500 rounded-md w-full font-semibold cursor-pointer hover:opacity-80"
+            onClick={() => {
+              findOptimalRatio();
+            }}
+          >
+            Find Optimal Ratio
+          </button>
+          <p className="text-xs text-neutral-300/60">*Uses default mod configuration</p>
+        </div>
+
+        <div className="space-y-2">
+          <div>
+            <h2 className="text-lg font-semibold">Reactor Stats</h2>
             <p className="text-xs text-neutral-300/60">Values assume default mod configuration settings</p>
           </div>
           {reactor.getNumControlRods() === 0 && <div className="text-sm text-red-700 bg-red-100 px-3 py-2 rounded w-full">Place a control rod for stats to update</div>}
@@ -124,7 +190,41 @@ export default function Home() {
 
             <span className="text-neutral-300/60">Fuel Usage</span>
             <span>{reactor.getFuelUsage().toFixed(4)} mB/t</span>
+
+            <span className="text-neutral-300/60">Fuel Efficiency</span>
+            <span>{(reactor.getFuelUsage() > 0 ? reactor.getTotalEnergy() / reactor.getFuelUsage() : 0).toFixed(2)} FE/mB</span>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold">Build Materials</h2>
+          {[...reactor.getLayerBlockCounts()].map(([block, count]) => {
+            if (block === Block.Air) return;
+            if (count === 0) return;
+            let realCount = 0;
+            const reactorIsLarge = reactor.height > 3 || reactor.width > 3 || reactor.depth > 3;
+            let prepend = '';
+            if (reactorParts.includes(block) || block === Block.ReactorControlRod) {
+              realCount = count;
+              if (reactorIsLarge) {
+                prepend = 'Reinforced ';
+              } else {
+                prepend = 'Basic ';
+              }
+            } else {
+              realCount = count * reactor.height;
+            }
+            return (
+              <div key={block} className="flex items-center gap-2 text-sm ml-0.5">
+                <div className="relative w-6 h-6 border border-white/75">
+                  <Image src={`/assets/blocks/${block}.png`} alt={block} sizes="100%" fill className="object-contain select-none pointer-events-none" style={{ imageRendering: 'pixelated' }} />
+                </div>
+                <span>
+                  {prepend + BlockNames.get(block)}: {realCount}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -152,9 +252,10 @@ function ReactorItem({ x, z, casing, rows, cols, block, updateReactor }: { x: nu
 
   return (
     <div
-      className={`bg-white/10 hover:bg-white ${!casing && 'cursor-pointer hover:opacity-35'} bg-cover`}
+      className={`bg-white/10 hover:bg-white ${!casing && 'cursor-pointer hover:opacity-35'} bg-cover select-none`}
       style={{
         backgroundImage: `${getCasingImage(x, z)}`,
+        imageRendering: 'pixelated',
       }}
       onMouseDown={() => {
         if (casing) return;

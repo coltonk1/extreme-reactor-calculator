@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Extreme Reactors 2 Calculator | Reactor Planner Tool',
@@ -26,7 +27,15 @@ export default function RootLayout({
         <header className="h-14 py-6 flex items-center px-6 bg-neutral-950">
           <h1 className="text-lg font-semibold tracking-tight text-neutral-200">Extreme Reactor 2 Calculator</h1>
         </header>
-        <main className="flex-1 overflow-hidden">{children}</main>
+        <Suspense
+          fallback={
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-neutral-300">Loading...</p>
+            </div>
+          }
+        >
+          <main className="flex-1 overflow-hidden">{children}</main>
+        </Suspense>
         <footer className="h-10 flex items-center justify-center gap-6 text-sm text-neutral-400 bg-neutral-950 border-t border-black">
           <Link href="https://github.com/coltonk1/extreme-reactor-calculator/blob/master/LICENSE.md" target="_blank" className="hover:text-neutral-200">
             License

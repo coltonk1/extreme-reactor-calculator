@@ -327,18 +327,26 @@ class Reactor {
     return { fuelHeat: this.fuelHeat, reactorHeat: this.reactorHeat, ...data };
   }
 
-  simulate(_iterateAmount: number = 250) {
+  simulate(_maxIterateAmount: number = 1500) {
     let output = null;
+    let previousOutput = null;
+    let checked = false;
 
-    for (let i = 0; i < _iterateAmount; i++) {
-      output = this.#update();
+    for (let i = 0; i < _maxIterateAmount; i++) {
+      output = JSON.stringify(this.#update());
+      if (output === previousOutput) {
+        // This stops early when values are very similar, indicating it is close to a stable state, saving a lot of time with many control rods.
+        // This may cause some very small inaccuracies compared to full simulations.
+        // For example, 300ms went down to 11ms. 1500 iterations to 48 iterations. Tons of control rods, while results stayed nearly the same
+        if (checked) break;
+        checked = true;
+      }
+      previousOutput = output;
     }
 
-    this.fuelUsage = output?.fuelUsage || 0;
+    output = JSON.parse(output!);
 
-    // console.log(`Insertion ${this.insertionRatio}% | Fuel heat: ${output?.fuelHeat} | Reactor heat: ${output?.reactorHeat} | Usage: ${output?.fuelUsage} | Fertility: ${this.fertility}`);
-    const amtPerBlock = this.totalEnergy / this.innerReactorVolume;
-    // if (output?.fuelUsage) console.log(`Energy: ${this.totalEnergy} | Efficiency: ${amtPerBlock / output?.fuelUsage}`);
+    this.fuelUsage = output?.fuelUsage || 0;
   }
 
   clone(): Reactor {
@@ -386,7 +394,7 @@ class Reactor {
     this.insertionRatio = newInsertionRatio;
     this.#updateFuelConstants();
     this.reset();
-    this.simulate(1000);
+    this.simulate();
   }
 }
 

@@ -37,7 +37,7 @@ export default function Home() {
           });
         });
 
-        newReactor.simulate(1000);
+        newReactor.simulate();
 
         setCols(width);
         setRows(depth);
@@ -76,7 +76,7 @@ export default function Home() {
   const updateReactor = (x: number, z: number) => {
     reactor.setCol(z, x, selectedBlock);
     reactor.reset();
-    reactor.simulate(1000);
+    reactor.simulate();
     setReactor(reactor.clone());
   };
 

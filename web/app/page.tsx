@@ -69,14 +69,14 @@ export default function Home() {
   const sectionTitles = ['Vanilla', 'Extreme Reactors', 'General Metals', 'Other'];
   let titleIndex = 0;
 
-  const reactorParts = [Block.FuelRod, Block.ReactorCasing, Block.ReactorController, Block.ReactorAccessPort];
+  const reactorParts = [Block.ReactorCasing, Block.ReactorController, Block.ReactorAccessPort];
 
   return (
     <div className="flex flex-1 mx-auto w-full h-full">
       <div className="px-8 grid text-white/90 gap-2 grid-cols-2 overflow-y-scroll pb-16 bg-neutral-900 border-r border-black">
         <div className="col-span-2 px-4 py-2 font-semibold bg-neutral-300 text-neutral-900 rounded shadow-md mt-8">Vanilla</div>
         {Object.values(Block).map(block => {
-          if (reactorParts.includes(block)) return;
+          if (reactorParts.includes(block) || block === Block.FuelRod) return;
           let newSection = null;
           if (block === nextTitlePoints[titleIndex]) {
             titleIndex++;
@@ -204,13 +204,16 @@ export default function Home() {
             let realCount = 0;
             const reactorIsLarge = reactor.height > 3 || reactor.width > 3 || reactor.depth > 3;
             let prepend = '';
-            if (reactorParts.includes(block) || block === Block.ReactorControlRod) {
-              realCount = count;
+            if (reactorParts.includes(block) || block === Block.ReactorControlRod || block === Block.FuelRod) {
               if (reactorIsLarge) {
                 prepend = 'Reinforced ';
               } else {
                 prepend = 'Basic ';
               }
+            }
+
+            if (reactorParts.includes(block) || block === Block.ReactorControlRod) {
+              realCount = count;
             } else {
               realCount = count * reactor.height;
             }

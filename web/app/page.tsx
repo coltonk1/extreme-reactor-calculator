@@ -1,11 +1,18 @@
 'use client';
 import { Reactor, Block, BlockNames, Fuel } from '@/lib/reactor_simulation';
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 
 import Image from 'next/image';
-import React from 'react';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 export default function Home() {
+  const searchParams = useSearchParams();
+
+  const reactorParam = searchParams.get('reactor');
+
+  const blockToId = Object.fromEntries(Object.values(Block).map((block, i) => [block, i]));
+
   const [cols, setCols] = useState(7);
   const [rows, setRows] = useState(7);
   const [height, setHeight] = useState(7);
@@ -13,7 +20,37 @@ export default function Home() {
 
   const [reactor, setReactor] = useState(() => new Reactor(cols, rows, height, 0, Fuel.Uranium));
 
+  const [copied, setCopied] = useState(false);
+
   const reactorMap = reactor.getReactorMap();
+
+  useEffect(() => {
+    if (reactorParam) {
+      try {
+        const decoded = JSON.parse(decompressFromEncodedURIComponent(reactorParam));
+        const { map, ratio, width, depth, height } = decoded;
+        const newReactor = new Reactor(width, depth, height, ratio, Fuel.Uranium);
+
+        map.forEach((row: number[], z: number) => {
+          row.forEach((blockId: number, x: number) => {
+            newReactor.setCol(z, x, Object.values(Block)[blockId]);
+          });
+        });
+
+        newReactor.simulate(1000);
+
+        setCols(width);
+        setRows(depth);
+        setHeight(height);
+        setReactor(newReactor);
+      } catch (e) {
+        console.error('Failed to load reactor from URL:', e);
+      }
+    }
+
+    // Do not add reactorParam for this effect, only want to run on initial load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const resizeReactor = (newCols: number, newRows: number, newHeight: number) => {
     setCols(newCols);
@@ -22,18 +59,28 @@ export default function Home() {
     setReactor(new Reactor(newCols, newRows, newHeight, 0, Fuel.Uranium));
   };
 
+  useEffect(() => {
+    const numericMap = reactor.getReactorMap().map(row => row.map(block => blockToId[block]));
+
+    const reactorPayload = {
+      map: numericMap,
+      ratio: reactor.getInsertionRatio(),
+      width: reactor.width,
+      depth: reactor.depth,
+      height: reactor.height,
+    };
+
+    window.history.replaceState(null, '', `/?reactor=${compressToEncodedURIComponent(JSON.stringify(reactorPayload))}`);
+  }, [reactor]);
+
   const updateReactor = (x: number, z: number) => {
     reactor.setCol(z, x, selectedBlock);
-    const start = performance.now();
     reactor.reset();
     reactor.simulate(1000);
     setReactor(reactor.clone());
-    console.log((performance.now() - start) / 1000);
   };
 
   const findOptimalRatio = () => {
-    const start = performance.now();
-
     let bestRatio = 0;
     let bestEfficiency = 0;
     for (let ratio = 0; ratio <= 100; ratio += 5) {
@@ -61,8 +108,6 @@ export default function Home() {
     }
     reactor.updateInsertionRatio(bestRatio);
     setReactor(reactor.clone());
-
-    console.log(`Performance: ${(performance.now() - start) / 1000} seconds`);
   };
 
   const nextTitlePoints = [Block.ReactorControlRod, Block.Bronze, Block.RefinedObsidian];
@@ -116,6 +161,34 @@ export default function Home() {
       </div>
 
       <div className="w-fit border-l border-black bg-neutral-900 px-6 py-5 space-y-5 text-neutral-300 overflow-auto">
+        <button
+          className="py-2 px-4 text-sm bg-blue-500 rounded-md w-full font-semibold cursor-pointer hover:opacity-80"
+          onClick={() => {
+            const numericMap = reactor.getReactorMap().map(row => row.map(block => blockToId[block]));
+
+            const reactorPayload = {
+              map: numericMap,
+              ratio: reactor.getInsertionRatio(),
+              width: reactor.width,
+              depth: reactor.depth,
+              height: reactor.height,
+            };
+
+            const encoded = compressToEncodedURIComponent(JSON.stringify(reactorPayload));
+
+            const shareUrl = `${window.location.origin}/?reactor=${encoded}`;
+
+            navigator.clipboard.writeText(shareUrl);
+
+            setCopied(true);
+
+            setTimeout(() => {
+              setCopied(false);
+            }, 800);
+          }}
+        >
+          {copied ? 'URL Copied!' : 'Copy URL to Clipboard'}
+        </button>
         <div className="space-y-2">
           <div>
             <h2 className="text-lg font-semibold">Reactor Inner Size</h2>

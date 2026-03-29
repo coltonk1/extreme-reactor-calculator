@@ -327,26 +327,32 @@ class Reactor {
     return { fuelHeat: this.fuelHeat, reactorHeat: this.reactorHeat, ...data };
   }
 
+  #nearlyEqual(a: number, b: number, epsilon = 1e-5) {
+    return Math.abs(a - b) < epsilon;
+  }
+
   simulate(_maxIterateAmount: number = 1500) {
+    const start = performance.now();
     let output = null;
     let previousOutput = null;
-    let checked = false;
+
+    if (this.insertionRatio === 100) {
+      return;
+    }
 
     for (let i = 0; i < _maxIterateAmount; i++) {
-      output = JSON.stringify(this.#update());
-      if (output === previousOutput) {
+      output = this.#update();
+      if (this.#nearlyEqual(output.fuelHeat, previousOutput?.fuelHeat || 0)) {
         // This stops early when values are very similar, indicating it is close to a stable state, saving a lot of time with many control rods.
         // This may cause some very small inaccuracies compared to full simulations.
         // For example, 300ms went down to 11ms. 1500 iterations to 48 iterations. Tons of control rods, while results stayed nearly the same
-        if (checked) break;
-        checked = true;
+        break;
       }
       previousOutput = output;
     }
 
-    output = JSON.parse(output!);
-
     this.fuelUsage = output?.fuelUsage || 0;
+    console.log(`Simulation time: ${performance.now() - start} ms`);
   }
 
   clone(): Reactor {

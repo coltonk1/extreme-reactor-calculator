@@ -1,7 +1,7 @@
 'use client';
 import { Reactor, Block, BlockNames, Fuel } from '@/lib/reactor_simulation';
+import { toBlob } from 'html-to-image';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
-
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -21,6 +21,11 @@ export default function Home() {
   const [reactor, setReactor] = useState(() => new Reactor(cols, rows, height, 0, Fuel.Uranium));
 
   const [copied, setCopied] = useState(false);
+
+  const [copiedImage, setCopiedImage] = useState(false);
+  const [copyingImage, setCopyingImage] = useState(false);
+
+  const [ratioFound, setRatioFound] = useState(false);
 
   const reactorMap = reactor.getReactorMap();
 
@@ -116,6 +121,25 @@ export default function Home() {
 
   const reactorParts = [Block.ReactorCasing, Block.ReactorController, Block.ReactorAccessPort];
 
+  const copyMapAsImage = async () => {
+    const node = document.getElementById('reactor-map');
+    if (!node) return;
+
+    node.style.fontFamily = 'system-ui';
+
+    const blob = await toBlob(node, {
+      fontEmbedCSS: '',
+      skipFonts: true,
+      style: {
+        margin: '0',
+      },
+    });
+
+    if (!blob) return;
+
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+  };
+
   return (
     <div className="flex flex-1 mx-auto w-full h-full">
       <div className="px-8 grid text-white/90 gap-2 grid-cols-2 overflow-y-scroll pb-16 bg-neutral-900 border-r border-black">
@@ -141,10 +165,12 @@ export default function Home() {
           );
         })}
       </div>
+
       <div className="flex flex-col gap-10 items-center flex-1 overflow-auto min-h-0">
         <div className="m-auto">
           <div
-            className="grid w-fit m-12"
+            className="grid w-fit m-12 bg-neutral-800"
+            id="reactor-map"
             style={{
               gridTemplateColumns: `repeat(${reactor.width + 2}, minmax(1.75rem, 1fr))`,
               gridTemplateRows: `repeat(${reactor.depth + 2}, minmax(1.75rem, 1fr))`,
@@ -161,34 +187,58 @@ export default function Home() {
       </div>
 
       <div className="w-fit border-l border-black bg-neutral-900 px-6 py-5 space-y-5 text-neutral-300 overflow-auto">
-        <button
-          className="py-2 px-4 text-sm bg-blue-500 rounded-md w-full font-semibold cursor-pointer hover:opacity-80"
-          onClick={() => {
-            const numericMap = reactor.getReactorMap().map(row => row.map(block => blockToId[block]));
+        <div className="flex flex-col gap-2">
+          <button
+            className="py-2 text-sm bg-blue-500 rounded-md w-full font-semibold cursor-pointer hover:opacity-80"
+            onClick={async () => {
+              if (copyingImage) return;
 
-            const reactorPayload = {
-              map: numericMap,
-              ratio: reactor.getInsertionRatio(),
-              width: reactor.width,
-              depth: reactor.depth,
-              height: reactor.height,
-            };
+              setCopyingImage(true);
 
-            const encoded = compressToEncodedURIComponent(JSON.stringify(reactorPayload));
+              await new Promise(requestAnimationFrame);
+              await new Promise(requestAnimationFrame);
 
-            const shareUrl = `${window.location.origin}/?reactor=${encoded}`;
+              await copyMapAsImage();
 
-            navigator.clipboard.writeText(shareUrl);
+              setCopiedImage(true);
+              setCopyingImage(false);
 
-            setCopied(true);
+              setTimeout(() => {
+                setCopiedImage(false);
+              }, 800);
+            }}
+          >
+            {copyingImage ? 'Copying...' : copiedImage ? 'Image Copied!' : copiedImage ? 'Image Copied!' : 'Copy Image of Reactor'}
+          </button>
+          <button
+            className="py-2 px-4 text-sm bg-blue-500 rounded-md w-full font-semibold cursor-pointer hover:opacity-80"
+            onClick={() => {
+              const numericMap = reactor.getReactorMap().map(row => row.map(block => blockToId[block]));
 
-            setTimeout(() => {
-              setCopied(false);
-            }, 800);
-          }}
-        >
-          {copied ? 'URL Copied!' : 'Copy URL to Clipboard'}
-        </button>
+              const reactorPayload = {
+                map: numericMap,
+                ratio: reactor.getInsertionRatio(),
+                width: reactor.width,
+                depth: reactor.depth,
+                height: reactor.height,
+              };
+
+              const encoded = compressToEncodedURIComponent(JSON.stringify(reactorPayload));
+
+              const shareUrl = `${window.location.origin}/?reactor=${encoded}`;
+
+              navigator.clipboard.writeText(shareUrl);
+
+              setCopied(true);
+
+              setTimeout(() => {
+                setCopied(false);
+              }, 800);
+            }}
+          >
+            {copied ? 'URL Copied!' : 'Copy Share Link'}
+          </button>
+        </div>
         <div className="space-y-2">
           <div>
             <h2 className="text-lg font-semibold">Reactor Inner Size</h2>
@@ -237,9 +287,14 @@ export default function Home() {
             className="py-2 px-4 text-sm bg-blue-500 rounded-md w-full font-semibold cursor-pointer hover:opacity-80"
             onClick={() => {
               findOptimalRatio();
+              setRatioFound(true);
+
+              setTimeout(() => {
+                setRatioFound(false);
+              }, 800);
             }}
           >
-            Find Optimal Ratio
+            {ratioFound ? 'Optimal Ratio Found!' : 'Find Optimal Ratio'}
           </button>
           <p className="text-xs text-neutral-300/60">*Uses default mod configuration</p>
         </div>

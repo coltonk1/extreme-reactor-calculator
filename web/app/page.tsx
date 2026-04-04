@@ -234,6 +234,14 @@ export default function Home() {
               setTimeout(() => {
                 setCopied(false);
               }, 800);
+
+              fetch('/api/saveReactor', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reactor: encoded, timestamp: Date.now() }),
+              });
             }}
           >
             {copied ? 'URL Copied!' : 'Copy Share Link'}

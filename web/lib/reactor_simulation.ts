@@ -7,6 +7,11 @@ class Reactor {
     return this.insertionRatio;
   }
 
+  private steamGenerated = 0;
+  getSteamGenerated() {
+    return this.steamGenerated;
+  }
+
   private fuelHeat = 0;
   getFuelHeat() {
     return this.fuelHeat;
@@ -41,6 +46,7 @@ class Reactor {
   readonly innerReactorVolume: number = 0;
   readonly innerSurfaceArea: number;
   readonly exteriorSurfaceArea: number;
+  readonly fluidCapacity: number;
 
   private currentFuel: Fuel;
   getCurrentFuel() {
@@ -83,12 +89,17 @@ class Reactor {
 
   private heatTransferFactor = 0;
 
+  private isActivelyCooled = false;
+  getActivelyCooled() {
+    return this.isActivelyCooled;
+  }
+
   private blockCountsInLayer = new Map<Block, number>();
   getLayerBlockCounts(): ReadonlyMap<Block, number> {
     return new Map(this.blockCountsInLayer);
   }
 
-  constructor(width: number, depth: number, height: number, insertionRatio: number, currentFuel: Fuel) {
+  constructor(width: number, depth: number, height: number, insertionRatio: number, currentFuel: Fuel, activelyCooled: boolean) {
     this.width = width;
     this.depth = depth;
     this.height = height;
@@ -98,12 +109,17 @@ class Reactor {
     this.rodPositions = [];
     this.reactorMap = this.#newReactorMap(width, depth);
 
+    this.isActivelyCooled = activelyCooled;
+
     this.innerReactorVolume = width * depth * height;
     this.innerSurfaceArea = 2 * (width * depth + width * height + depth * height);
 
     const [extWidth, extDepth, extHeight] = [width + 2, depth + 2, height + 2];
 
     this.exteriorSurfaceArea = 2 * (extWidth * extDepth + extWidth * extHeight + extDepth * extHeight);
+
+    // Max 200 B
+    this.fluidCapacity = Math.min(this.exteriorSurfaceArea, 200) * 1000;
 
     this.#calcReactorHeatTransferCoefficient();
     this.#updateFuelConstants();
@@ -278,18 +294,28 @@ class Reactor {
   }
 
   #transferHeatBetweenReactorAndCoolant() {
-    const temperatureDifferential = this.reactorHeat - Reactor.ambientTemp;
+    // 100 is boiling point for water
+    const tempToRemove = this.isActivelyCooled ? Math.min(this.reactorHeat, 100) : Reactor.ambientTemp;
+    const temperatureDifferential = this.reactorHeat - tempToRemove;
+    const energyTransferred = temperatureDifferential * this.coolantSystemHeatTransferCoefficient * (this.isActivelyCooled ? 1 : Reactor.passiveCoolingTransferEfficiency);
+    const reactorEnergy = this.reactorHeat * 10 * this.innerReactorVolume;
+
     if (temperatureDifferential > 0.01) {
-      const energyTransferred = temperatureDifferential * this.coolantSystemHeatTransferCoefficient * Reactor.passiveCoolingTransferEfficiency;
-      let reactorEnergy = this.reactorHeat * 10 * this.innerReactorVolume;
+      // if (!this.isActivelyCooled) {
       this.totalEnergy = energyTransferred * Reactor.passiveCoolingPowerEfficiency;
-      reactorEnergy -= energyTransferred;
-      this.reactorHeat = this.#getTempFromVolAndEnergy(this.innerReactorVolume, reactorEnergy);
+      // } else {
+      this.steamGenerated = Math.min(this.fluidCapacity, energyTransferred * 0.25);
+      // }
+
+      this.reactorHeat = this.#getTempFromVolAndEnergy(this.innerReactorVolume, reactorEnergy - energyTransferred);
     }
   }
 
   #performPassiveHeatLoss() {
-    const temperatureDifferential = this.reactorHeat - Reactor.ambientTemp;
+    // 100 is boiling point for water
+    const tempToRemove = this.isActivelyCooled ? Math.min(this.reactorHeat, 100) : Reactor.ambientTemp;
+    const temperatureDifferential = this.reactorHeat - tempToRemove;
+
     if (temperatureDifferential > 0.01) {
       const totalLost = temperatureDifferential * this.reactorHeatLossCoefficient;
       const energyLost = 1 > totalLost ? 1 : totalLost;
@@ -337,6 +363,7 @@ class Reactor {
     let previousOutput = null;
 
     if (this.insertionRatio === 100) {
+      this.steamGenerated = 0;
       return;
     }
 
@@ -356,7 +383,7 @@ class Reactor {
   }
 
   clone(): Reactor {
-    const copy = new Reactor(this.width, this.depth, this.height, this.insertionRatio, this.currentFuel);
+    const copy = new Reactor(this.width, this.depth, this.height, this.insertionRatio, this.currentFuel, this.isActivelyCooled);
 
     copy.fuelHeat = this.fuelHeat;
     copy.reactorHeat = this.reactorHeat;
@@ -380,6 +407,8 @@ class Reactor {
     copy.reactorHeatTransferCoefficient = this.reactorHeatTransferCoefficient;
     copy.heatTransferFactor = this.heatTransferFactor;
 
+    copy.steamGenerated = this.steamGenerated;
+
     copy.#updateFuelConstants();
 
     copy.blockCountsInLayer = new Map(this.blockCountsInLayer);
@@ -398,6 +427,13 @@ class Reactor {
   updateInsertionRatio(newInsertionRatio: number) {
     if (newInsertionRatio < 0 || newInsertionRatio > 100) return;
     this.insertionRatio = newInsertionRatio;
+    this.#updateFuelConstants();
+    this.reset();
+    this.simulate();
+  }
+
+  updateActivelyCooled(activelyCooled: boolean) {
+    this.isActivelyCooled = activelyCooled;
     this.#updateFuelConstants();
     this.reset();
     this.simulate();

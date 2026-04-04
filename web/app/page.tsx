@@ -18,7 +18,9 @@ export default function Home() {
   const [height, setHeight] = useState(7);
   const [selectedBlock, setSelectedBlock] = useState(Block.Air);
 
-  const [reactor, setReactor] = useState(() => new Reactor(cols, rows, height, 0, Fuel.Uranium));
+  const [activelyCooled, setActivelyCooled] = useState(false);
+
+  const [reactor, setReactor] = useState(() => new Reactor(cols, rows, height, 0, Fuel.Uranium, false));
 
   const [copied, setCopied] = useState(false);
 
@@ -33,9 +35,8 @@ export default function Home() {
     if (reactorParam) {
       try {
         const decoded = JSON.parse(decompressFromEncodedURIComponent(reactorParam));
-        const { map, ratio, width, depth, height } = decoded;
-        const newReactor = new Reactor(width, depth, height, ratio, Fuel.Uranium);
-
+        const { map, ratio, width, depth, height, isActivelyCooled } = decoded;
+        const newReactor = new Reactor(width, depth, height, ratio, Fuel.Uranium, isActivelyCooled || false);
         map.forEach((row: number[], z: number) => {
           row.forEach((blockId: number, x: number) => {
             newReactor.setCol(z, x, Object.values(Block)[blockId]);
@@ -47,6 +48,7 @@ export default function Home() {
         setCols(width);
         setRows(depth);
         setHeight(height);
+        setActivelyCooled(isActivelyCooled || false);
         setReactor(newReactor);
       } catch (e) {
         console.error('Failed to load reactor from URL:', e);
@@ -61,7 +63,7 @@ export default function Home() {
     setCols(newCols);
     setRows(newRows);
     setHeight(newHeight);
-    setReactor(new Reactor(newCols, newRows, newHeight, 0, Fuel.Uranium));
+    setReactor(new Reactor(newCols, newRows, newHeight, 0, Fuel.Uranium, activelyCooled));
   };
 
   useEffect(() => {
@@ -73,6 +75,7 @@ export default function Home() {
       width: reactor.width,
       depth: reactor.depth,
       height: reactor.height,
+      isActivelyCooled: reactor.getActivelyCooled(),
     };
 
     window.history.replaceState(null, '', `/?reactor=${compressToEncodedURIComponent(JSON.stringify(reactorPayload))}`);
@@ -90,7 +93,8 @@ export default function Home() {
     let bestEfficiency = 0;
     for (let ratio = 0; ratio <= 100; ratio += 5) {
       reactor.updateInsertionRatio(ratio);
-      const efficiency = reactor.getFuelUsage() > 0 ? reactor.getTotalEnergy() / reactor.getFuelUsage() : 0;
+      const outputMetric = reactor.getActivelyCooled() ? reactor.getSteamGenerated() : reactor.getTotalEnergy();
+      const efficiency = reactor.getFuelUsage() > 0 ? outputMetric / reactor.getFuelUsage() : 0;
       if (efficiency > bestEfficiency) {
         bestEfficiency = efficiency;
         bestRatio = ratio;
@@ -103,7 +107,8 @@ export default function Home() {
     for (let ratio = bestRatio - 5; ratio <= bestRatio + 5; ratio++) {
       if (ratio < 0 || ratio > 100) continue;
       reactor.updateInsertionRatio(ratio);
-      const efficiency = reactor.getFuelUsage() > 0 ? reactor.getTotalEnergy() / reactor.getFuelUsage() : 0;
+      const outputMetric = reactor.getActivelyCooled() ? reactor.getSteamGenerated() : reactor.getTotalEnergy();
+      const efficiency = reactor.getFuelUsage() > 0 ? outputMetric / reactor.getFuelUsage() : 0;
       if (efficiency > bestEfficiency) {
         bestEfficiency = efficiency;
         bestRatio = ratio;
@@ -114,6 +119,14 @@ export default function Home() {
     reactor.updateInsertionRatio(bestRatio);
     setReactor(reactor.clone());
   };
+
+  useEffect(() => {
+    setReactor(prev => {
+      const newReactor = prev.clone();
+      newReactor.updateActivelyCooled(activelyCooled);
+      return newReactor;
+    });
+  }, [activelyCooled]);
 
   const nextTitlePoints = [Block.ReactorControlRod, Block.Bronze, Block.RefinedObsidian];
   const sectionTitles = ['Vanilla', 'Extreme Reactors', 'General Metals', 'Other'];
@@ -186,7 +199,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="w-fit border-l border-black bg-neutral-900 px-6 py-5 space-y-5 text-neutral-300 overflow-auto">
+      <div className="w-fit border-l border-black bg-neutral-900 px-6 py-5 space-y-8 text-neutral-300 overflow-auto">
         <div className="flex flex-col gap-2">
           <button
             className="py-2 text-sm bg-blue-500 rounded-md w-full font-semibold cursor-pointer hover:opacity-80"
@@ -240,63 +253,84 @@ export default function Home() {
           </button>
         </div>
         <div className="space-y-2">
-          <div>
-            <h2 className="text-lg font-semibold">Reactor Inner Size</h2>
-            <p className="text-xs text-neutral-300/60">Changing dimensions resets the reactor</p>
-          </div>
-          <div className="grid grid-cols-3 gap-4 w-fit">
-            <label className="flex flex-col text-sm">
-              X
-              <input className="mt-1 w-20 px-2 py-1 rounded bg-white text-neutral-900" value={reactor.width} onChange={e => resizeReactor(Number(e.target.value), rows, height)} />
-            </label>
+          <h2 className="text-lg font-semibold">Reactor Settings</h2>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <div>
+                <h3 className="text-sm font-semibold">Inner Size</h3>
+                <p className="text-xs text-neutral-300/60">Changing dimensions will reset the reactor</p>
+              </div>
+              <div className="grid grid-cols-3 gap-4 w-fit">
+                <label className="flex flex-col text-sm">
+                  X
+                  <input className="mt-1 w-20 px-2 py-1 rounded bg-white text-neutral-900" value={reactor.width} onChange={e => resizeReactor(Number(e.target.value), rows, height)} />
+                </label>
 
-            <label className="flex flex-col text-sm">
-              <p>
-                Y <span className="text-xs text-neutral-300/60">(height)</span>
-              </p>
-              <input className="mt-1 w-20 px-2 py-1 rounded bg-white text-neutral-900" value={reactor.height} onChange={e => resizeReactor(cols, rows, Number(e.target.value))} />
-            </label>
+                <label className="flex flex-col text-sm">
+                  <p>
+                    Y <span className="text-xs text-neutral-300/60">(height)</span>
+                  </p>
+                  <input className="mt-1 w-20 px-2 py-1 rounded bg-white text-neutral-900" value={reactor.height} onChange={e => resizeReactor(cols, rows, Number(e.target.value))} />
+                </label>
 
-            <label className="flex flex-col text-sm">
-              Z
-              <input className="mt-1 w-20 px-2 py-1 rounded bg-white text-neutral-900" value={reactor.depth} onChange={e => resizeReactor(cols, Number(e.target.value), height)} />
-            </label>
-          </div>
-        </div>
+                <label className="flex flex-col text-sm">
+                  Z
+                  <input className="mt-1 w-20 px-2 py-1 rounded bg-white text-neutral-900" value={reactor.depth} onChange={e => resizeReactor(cols, Number(e.target.value), height)} />
+                </label>
+              </div>
+            </div>
 
-        <div className="space-y-2">
-          <div>
-            <h2 className="text-lg font-semibold">Insertion Ratio</h2>
-          </div>
-          <div className="mb-4 flex gap-2">
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={1}
-              value={Number(reactor.getInsertionRatio())}
-              onChange={e => {
-                reactor.updateInsertionRatio(Number(e.target.value));
-                setReactor(reactor.clone());
-              }}
-              className="w-full"
-            />
-            <span className="text-sm w-10 text-right">{reactor.getInsertionRatio()}%</span>
-          </div>
-          <button
-            className="py-2 px-4 text-sm bg-blue-500 rounded-md w-full font-semibold cursor-pointer hover:opacity-80"
-            onClick={() => {
-              findOptimalRatio();
-              setRatioFound(true);
+            <div className="space-y-2">
+              <div>
+                <h2 className="text-sm font-semibold">Cooling Mode</h2>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={activelyCooled}
+                  onChange={e => {
+                    setActivelyCooled(e.target.checked);
+                  }}
+                  className="w-4 h-4 accent-blue-500 cursor-pointer"
+                />
+                <p className="text-neutral-300/80">Actively cooled</p>
+              </div>
+            </div>
 
-              setTimeout(() => {
-                setRatioFound(false);
-              }, 800);
-            }}
-          >
-            {ratioFound ? 'Optimal Ratio Found!' : 'Find Optimal Ratio'}
-          </button>
-          <p className="text-xs text-neutral-300/60">*Uses default mod configuration</p>
+            <div className="space-y-2">
+              <div>
+                <h2 className="text-sm font-semibold">Insertion Ratio</h2>
+              </div>
+              <div className="mb-4 flex gap-2">
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={Number(reactor.getInsertionRatio())}
+                  onChange={e => {
+                    reactor.updateInsertionRatio(Number(e.target.value));
+                    setReactor(reactor.clone());
+                  }}
+                  className="w-full"
+                />
+                <span className="text-sm w-10 text-right">{reactor.getInsertionRatio()}%</span>
+              </div>
+              <button
+                className="py-2 px-4 text-sm bg-blue-500 rounded-md w-full font-semibold cursor-pointer hover:opacity-80"
+                onClick={() => {
+                  findOptimalRatio();
+                  setRatioFound(true);
+
+                  setTimeout(() => {
+                    setRatioFound(false);
+                  }, 800);
+                }}
+              >
+                {ratioFound ? 'Optimal Ratio Found!' : 'Find Optimal Ratio'}
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -313,14 +347,41 @@ export default function Home() {
             <span className="text-neutral-300/60">Reactor Heat</span>
             <span>{reactor.getReactorHeat().toFixed(0)} C</span>
 
-            <span className="text-neutral-300/60">Power</span>
-            <span>{reactor.getTotalEnergy().toFixed(2)} FE/t</span>
+            {!activelyCooled && (
+              <>
+                <span className="text-neutral-300/60">Power</span>
+                <span>{reactor.getTotalEnergy().toFixed(2)} FE/t</span>
+              </>
+            )}
+
+            {activelyCooled &&
+              (() => {
+                const steam = reactor.getSteamGenerated();
+
+                return (
+                  <>
+                    <span className="text-neutral-300/60">Steam</span>
+                    <span>{steam < 1000 ? `${steam.toFixed(2)} mB/t` : `${(steam / 1000).toFixed(2)} B/t`}</span>
+                  </>
+                );
+              })()}
 
             <span className="text-neutral-300/60">Fuel Usage</span>
             <span>{reactor.getFuelUsage().toFixed(4)} mB/t</span>
 
-            <span className="text-neutral-300/60">Fuel Efficiency</span>
-            <span>{(reactor.getFuelUsage() > 0 ? reactor.getTotalEnergy() / reactor.getFuelUsage() : 0).toFixed(2)} FE/mB</span>
+            {!activelyCooled && (
+              <>
+                <span className="text-neutral-300/60">Fuel Efficiency</span>
+                <span>{(reactor.getFuelUsage() > 0 ? reactor.getTotalEnergy() / reactor.getFuelUsage() : 0).toFixed(2)} FE/mB</span>
+              </>
+            )}
+
+            {activelyCooled && (
+              <>
+                <span className="text-neutral-300/60">Fuel Efficiency</span>
+                <span>{(reactor.getFuelUsage() > 0 ? reactor.getSteamGenerated() / 1000 / reactor.getFuelUsage() : 0).toFixed(2)} B/mB</span>
+              </>
+            )}
           </div>
         </div>
 
@@ -333,7 +394,7 @@ export default function Home() {
             const reactorIsLarge = reactor.height > 3 || reactor.width > 3 || reactor.depth > 3;
             let prepend = '';
             if (reactorParts.includes(block) || block === Block.ReactorControlRod || block === Block.FuelRod) {
-              if (reactorIsLarge) {
+              if (reactorIsLarge || activelyCooled) {
                 prepend = 'Reinforced ';
               } else {
                 prepend = 'Basic ';

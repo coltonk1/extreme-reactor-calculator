@@ -1,5 +1,7 @@
 'use client';
-import { Reactor, Block, BlockNames, Fuel } from '@/lib/reactor_simulation';
+import { Block, BlockNames } from '@/lib/blocks';
+import { Fuel } from '@/lib/fuels';
+import { Reactor } from '@/lib/reactor_simulation';
 import { toBlob } from 'html-to-image';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import Image from 'next/image';

@@ -1,6 +1,21 @@
 import { Reactor } from '@/lib/reactor_simulation';
 
-export default function ReactorStats({ reactor, activelyCooled }: { reactor: Reactor; activelyCooled: boolean }) {
+export default function ReactorStats({
+  reactor,
+  activelyCooled,
+  powerProductionMultiplier,
+  reactorPowerProductionMultiplier,
+  fuelUsageMultiplier,
+}: {
+  reactor: Reactor;
+  activelyCooled: boolean;
+  powerProductionMultiplier: number;
+  reactorPowerProductionMultiplier: number;
+  fuelUsageMultiplier: number;
+}) {
+  const energyAfterMultipliers = reactor.getTotalEnergy() * powerProductionMultiplier * reactorPowerProductionMultiplier;
+  const fuelAfterMultiplier = reactor.getFuelUsage() * fuelUsageMultiplier;
+
   return (
     <div className="space-y-2">
       <div>
@@ -19,7 +34,7 @@ export default function ReactorStats({ reactor, activelyCooled }: { reactor: Rea
         {!activelyCooled && (
           <>
             <span className="text-neutral-300/60">Power</span>
-            <span>{reactor.getTotalEnergy().toFixed(2)} FE/t</span>
+            <span>{energyAfterMultipliers.toFixed(2)} FE/t</span>
           </>
         )}
 
@@ -36,19 +51,19 @@ export default function ReactorStats({ reactor, activelyCooled }: { reactor: Rea
           })()}
 
         <span className="text-neutral-300/60">Fuel Usage</span>
-        <span>{reactor.getFuelUsage().toFixed(4)} mB/t</span>
+        <span>{fuelAfterMultiplier.toFixed(4)} mB/t</span>
 
         {!activelyCooled && (
           <>
             <span className="text-neutral-300/60">Fuel Efficiency</span>
-            <span>{(reactor.getFuelUsage() > 0 ? reactor.getTotalEnergy() / reactor.getFuelUsage() : 0).toFixed(2)} FE/mB</span>
+            <span>{(fuelAfterMultiplier > 0 ? energyAfterMultipliers / fuelAfterMultiplier : 0).toFixed(2)} FE/mB</span>
           </>
         )}
 
         {activelyCooled && (
           <>
             <span className="text-neutral-300/60">Fuel Efficiency</span>
-            <span>{(reactor.getFuelUsage() > 0 ? reactor.getSteamGenerated() / 1000 / reactor.getFuelUsage() : 0).toFixed(2)} B/mB</span>
+            <span>{(fuelAfterMultiplier > 0 ? reactor.getSteamGenerated() / 1000 / fuelAfterMultiplier : 0).toFixed(2)} B/mB</span>
           </>
         )}
       </div>

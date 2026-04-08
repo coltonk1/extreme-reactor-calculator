@@ -9,7 +9,7 @@ type ModeratorData = {
 
 const moderators = new Map<Block, ModeratorData>();
 
-function addModerator(block: Block, data: [number, number, number, number]) {
+function addModerator(block: Block, data: [absorption: number, heatEfficiency: number, inverseModeration: number, heatConductivity: number]) {
   if (data.length !== 4) throw new Error('Moderator data must have 4 values');
 
   moderators.set(block, {
@@ -79,6 +79,11 @@ function setupModerators() {
   addModerator(Block.Tangerium, [0.9, 0.75, 1 / 2.0, Conductivity.Gold]);
   addModerator(Block.Redfrigium, [0.66, 0.95, 1 / 6.0, Conductivity.Diamond]);
   addModerator(Block.Water, [0.33, 0.5, 1 / 1.33, Conductivity.Water]);
+
+  // ATM
+  addModerator(Block.Allthemodium, [0.697, 0.942, 1 / 3.84, 3.65]);
+  addModerator(Block.Vibranium, [0.24, 0.81, 1 / 7.47, 4.38]);
+  addModerator(Block.Unobtainium, [0.972, 0.91, 1 / 3.074, 5.0]);
 }
 
 export { setupModerators, moderators };

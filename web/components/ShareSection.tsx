@@ -4,7 +4,17 @@ import { toBlob } from 'html-to-image';
 import { compressToEncodedURIComponent } from 'lz-string';
 import { useState } from 'react';
 
-export default function ShareSection({ reactor }: { reactor: Reactor }) {
+export default function ShareSection({
+  reactor,
+  fuelUsageMultiplier,
+  powerProductionMultiplier,
+  reactorPowerProductionMultiplier,
+}: {
+  reactor: Reactor;
+  fuelUsageMultiplier: number;
+  powerProductionMultiplier: number;
+  reactorPowerProductionMultiplier: number;
+}) {
   const [copied, setCopied] = useState(false);
   const [copiedImage, setCopiedImage] = useState(false);
   const [copyingImage, setCopyingImage] = useState(false);
@@ -63,6 +73,10 @@ export default function ShareSection({ reactor }: { reactor: Reactor }) {
             width: reactor.width,
             depth: reactor.depth,
             height: reactor.height,
+            isActivelyCooled: reactor.getActivelyCooled(),
+            fuelUsageMultiplier,
+            powerProductionMultiplier,
+            reactorPowerProductionMultiplier,
           };
 
           const encoded = compressToEncodedURIComponent(JSON.stringify(reactorPayload));

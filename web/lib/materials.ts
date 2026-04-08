@@ -43,6 +43,9 @@ enum Material {
   Piston = 'piston',
   RedstoneTorch = 'redstone_torch',
   Uranium = 'uranium',
+  UnobtainiumIngot = 'unobtainium_ingot',
+  VibraniumIngot = 'vibranium_ingot',
+  AllthemodiumIngot = 'allthemodium_ingot',
 }
 
 const MaterialNames = new Map([
@@ -89,6 +92,9 @@ const MaterialNames = new Map([
   [Material.RefinedObsidianIngot, 'Refined Obsidian Ingot'],
   [Material.RefinedGlowstoneIngot, 'Glowstone Ingot'],
   [Material.ApatiteGem, 'Apatite Crystal'],
+  [Material.AllthemodiumIngot, 'Allthemodium Ingot'],
+  [Material.VibraniumIngot, 'Vibranium Ingot'],
+  [Material.UnobtainiumIngot, 'Unobtainium Ingot'],
 ]);
 
 export { Material, MaterialNames };

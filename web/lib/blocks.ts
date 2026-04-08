@@ -36,6 +36,9 @@ enum Block {
 
   RefinedObsidian = 'refinedobsidian',
   RefinedGlowstone = 'refinedglowstone',
+  Allthemodium = 'allthemodium',
+  Vibranium = 'vibranium',
+  Unobtainium = 'unobtainium',
   DryIce = 'dryice',
   Cinnabar = 'cinnabar',
   Enderium = 'enderium',
@@ -102,6 +105,11 @@ const BlockNames = new Map([
   [Block.Tangerium, 'Tangerium'],
   [Block.Redfrigium, 'Redfrigium'],
   [Block.Water, 'Water'],
+
+  // ATM
+  [Block.Unobtainium, 'Unobtainium'],
+  [Block.Vibranium, 'Vibranium'],
+  [Block.Allthemodium, 'Allthemodium'],
 ]);
 
 const BlockIds = Object.fromEntries(Object.values(Block).map((block, i) => [block, i]));

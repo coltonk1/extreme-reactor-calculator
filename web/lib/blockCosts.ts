@@ -5,6 +5,15 @@ type BlockCost = { [item: string]: number };
 type ReactorBlock = { basic: BlockCost; reinforced: BlockCost };
 
 export const BlockCosts: Partial<Record<string, BlockCost | ReactorBlock>> = {
+  [Block.Vibranium]: {
+    [Material.VibraniumIngot]: 9,
+  },
+  [Block.Unobtainium]: {
+    [Material.UnobtainiumIngot]: 9,
+  },
+  [Block.Allthemodium]: {
+    [Material.AllthemodiumIngot]: 9,
+  },
   [Block.Emerald]: {
     [Material.EmeraldGem]: 9,
   },

@@ -1,11 +1,9 @@
 'use client';
 import BlockPalette from '@/components/BlockPalette';
-import BuildMaterialSection from '@/components/BuildMaterialSection';
 import ReactorGrid from '@/components/ReactorGrid';
-import ReactorSettings from '@/components/ReactorSettings';
-import ReactorStats from '@/components/ReactorStats';
-import ShareSection from '@/components/ShareSection';
+import Sidebar from '@/components/Sidebar';
 import { Block, BlockIds } from '@/lib/blocks';
+import { presets } from '@/lib/configPresets';
 import { Fuel } from '@/lib/fuels';
 import { Reactor } from '@/lib/reactor_simulation';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
@@ -19,11 +17,15 @@ export default function Home() {
   const [activelyCooled, setActivelyCooled] = useState(false);
   const [reactor, setReactor] = useState(new Reactor(7, 7, 7, 0, Fuel.Uranium, false));
 
+  const [powerProductionMultiplier, setPowerProductionMultiplier] = useState(1);
+  const [reactorPowerProductionMultiplier, setReactorPowerProductionMultiplier] = useState(1);
+  const [fuelUsageMultiplier, setFuelUsageMultiplier] = useState(1);
+
   useEffect(() => {
     if (reactorParam) {
       try {
         const decoded = JSON.parse(decompressFromEncodedURIComponent(reactorParam));
-        const { map, ratio, width, depth, height, isActivelyCooled } = decoded;
+        const { map, ratio, width, depth, height, isActivelyCooled, fuelUsageMultiplier, powerProductionMultiplier, reactorPowerProductionMultiplier } = decoded;
         const newReactor = new Reactor(width, depth, height, ratio, Fuel.Uranium, isActivelyCooled || false);
         map.forEach((row: number[], z: number) => {
           row.forEach((blockId: number, x: number) => {
@@ -34,6 +36,9 @@ export default function Home() {
         newReactor.simulate();
 
         setActivelyCooled(isActivelyCooled || false);
+        setFuelUsageMultiplier(fuelUsageMultiplier || presets.default.fuel);
+        setPowerProductionMultiplier(powerProductionMultiplier || presets.default.power);
+        setReactorPowerProductionMultiplier(reactorPowerProductionMultiplier || presets.default.reactorPower);
         setReactor(newReactor);
       } catch (e) {
         console.error('Failed to load reactor from URL:', e);
@@ -58,10 +63,13 @@ export default function Home() {
       depth: reactor.depth,
       height: reactor.height,
       isActivelyCooled: reactor.getActivelyCooled(),
+      fuelUsageMultiplier,
+      powerProductionMultiplier,
+      reactorPowerProductionMultiplier,
     };
 
     window.history.replaceState(null, '', `/?reactor=${compressToEncodedURIComponent(JSON.stringify(reactorPayload))}`);
-  }, [reactor]);
+  }, [fuelUsageMultiplier, powerProductionMultiplier, reactor, reactorPowerProductionMultiplier]);
 
   useEffect(() => {
     setReactor(prev => {
@@ -119,18 +127,20 @@ export default function Home() {
         </div>
       </div>
 
-      <Sidebar reactor={reactor} setReactor={setReactor} activelyCooled={activelyCooled} setActivelyCooled={setActivelyCooled} resizeReactor={resizeReactor} findOptimalRatio={findOptimalRatio} />
-    </div>
-  );
-}
-
-function Sidebar({ reactor, setReactor, activelyCooled, setActivelyCooled, resizeReactor, findOptimalRatio }: { reactor: Reactor; setReactor: React.Dispatch<React.SetStateAction<Reactor>>; activelyCooled: boolean; setActivelyCooled: React.Dispatch<React.SetStateAction<boolean>>; resizeReactor: (newCols: number, newRows: number, newHeight: number) => void; findOptimalRatio: () => void }) {
-  return (
-    <div className="w-fit border-l border-black bg-neutral-900 px-6 py-5 space-y-8 text-neutral-300 overflow-auto">
-      <ShareSection reactor={reactor} />
-      <ReactorSettings reactor={reactor} setReactor={setReactor} resizeReactor={resizeReactor} activelyCooled={activelyCooled} setActivelyCooled={setActivelyCooled} findOptimalRatio={findOptimalRatio} />
-      <ReactorStats reactor={reactor} activelyCooled={activelyCooled} />
-      <BuildMaterialSection reactor={reactor} />
+      <Sidebar
+        reactor={reactor}
+        setReactor={setReactor}
+        activelyCooled={activelyCooled}
+        setActivelyCooled={setActivelyCooled}
+        resizeReactor={resizeReactor}
+        findOptimalRatio={findOptimalRatio}
+        powerProductionMultiplier={powerProductionMultiplier}
+        reactorPowerProductionMultiplier={reactorPowerProductionMultiplier}
+        fuelUsageMultiplier={fuelUsageMultiplier}
+        setPowerProductionMultiplier={setPowerProductionMultiplier}
+        setReactorPowerProductionMultiplier={setReactorPowerProductionMultiplier}
+        setFuelUsageMultiplier={setFuelUsageMultiplier}
+      />
     </div>
   );
 }

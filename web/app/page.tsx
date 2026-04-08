@@ -65,8 +65,9 @@ export default function Home() {
 
   useEffect(() => {
     setReactor(prev => {
-      prev.updateActivelyCooled(activelyCooled);
-      return prev.clone();
+      const next = prev.clone();
+      next.updateActivelyCooled(activelyCooled);
+      return next;
     });
   }, [activelyCooled]);
 

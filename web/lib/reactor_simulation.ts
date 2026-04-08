@@ -2,6 +2,10 @@ import { Block } from './blocks';
 import { Fuel, fuels, setupFuels } from './fuels';
 import { moderators, setupModerators } from './moderators';
 
+// Reactor simulation logic is adapted from the Extreme Reactors 2 source code.
+// This implementation condenses several behaviors and precomputes constants,
+// so its structure does not directly match the original and may be harder to follow.
+// If anything here is unclear, refer to the ER2 source for additional context.
 class Reactor {
   readonly width: number;
   readonly depth: number;
@@ -175,16 +179,20 @@ class Reactor {
       const idx = this.rodPositions.findIndex(([rx, rz]) => rx === x && rz === z);
       if (idx !== -1) this.rodPositions.splice(idx, 1);
       this.#updateNumControlRods(this.numControlRods - 1);
-      this.blockCountsInLayer.set(Block.FuelRod, this.blockCountsInLayer.get(Block.FuelRod)! - 1);
-      this.blockCountsInLayer.set(Block.ReactorCasing, this.blockCountsInLayer.get(Block.ReactorCasing)! + 1);
+      this.blockCountsInLayer.set(Block.FuelRod, this.blockCountsInLayer.getOrInsert(Block.FuelRod, 0) - this.height);
+      // vvv Offset so if a control rod is removed, the count only goes down by 1
+      this.blockCountsInLayer.set(Block.ReactorControlRod, this.blockCountsInLayer.getOrInsert(Block.ReactorControlRod, 0) + this.height - 1);
+      this.blockCountsInLayer.set(Block.ReactorCasing, this.blockCountsInLayer.getOrInsert(Block.ReactorCasing, 0) + 1);
     } else if (block === Block.ReactorControlRod) {
       this.rodPositions.push([x, z]);
       this.#updateNumControlRods(this.numControlRods + 1);
-      this.blockCountsInLayer.set(Block.FuelRod, (this.blockCountsInLayer.get(Block.FuelRod) || 0) + 1);
-      this.blockCountsInLayer.set(Block.ReactorCasing, this.blockCountsInLayer.get(Block.ReactorCasing)! - 1);
+      this.blockCountsInLayer.set(Block.FuelRod, this.blockCountsInLayer.getOrInsert(Block.FuelRod, 0) + this.height);
+      // vvv Offset so if a control rod is placed, the count only goes up by 1
+      this.blockCountsInLayer.set(Block.ReactorControlRod, this.blockCountsInLayer.getOrInsert(Block.ReactorControlRod, 0) - this.height + 1);
+      this.blockCountsInLayer.set(Block.ReactorCasing, this.blockCountsInLayer.getOrInsert(Block.ReactorCasing, 0) - 1);
     }
-    this.blockCountsInLayer.set(block, (this.blockCountsInLayer.get(block) || 0) + 1);
-    this.blockCountsInLayer.set(previousBlock, this.blockCountsInLayer.get(previousBlock)! - 1);
+    this.blockCountsInLayer.set(block, this.blockCountsInLayer.getOrInsert(block, 0) + this.height);
+    this.blockCountsInLayer.set(previousBlock, this.blockCountsInLayer.getOrInsert(previousBlock, 0) - this.height);
 
     this.reactorMap[z][x] = block;
     this.#calcReactorHeatTransferCoefficient();

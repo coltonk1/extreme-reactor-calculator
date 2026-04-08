@@ -1,3 +1,4 @@
+// This enum determines the order in which the placeable blocks will be shown
 enum Block {
   Air = 'air',
   Iron = 'iron',
@@ -46,6 +47,11 @@ enum Block {
   Terrasteel = 'terrasteel',
   Apatite = 'apatite',
 }
+
+// NotPlaceableBlocks will be excluded from being displayed on the Moderator list
+export const NotPlaceableBlock = new Set<Block>([Block.ReactorAccessPort, Block.ReactorCasing, Block.ReactorController, Block.FuelRod]);
+// BasicOrReinforcedBlocks will display under build materials with 'Reinforced' or 'Basic' depending on reactor type
+export const BasicOrReinforcedBlocks = new Set<Block>([Block.ReactorAccessPort, Block.ReactorCasing, Block.ReactorControlRod, Block.ReactorController, Block.FuelRod]);
 
 const BlockNames = new Map([
   [Block.Air, 'Air'],
@@ -98,4 +104,6 @@ const BlockNames = new Map([
   [Block.Water, 'Water'],
 ]);
 
-export { Block, BlockNames };
+const BlockIds = Object.fromEntries(Object.values(Block).map((block, i) => [block, i]));
+
+export { Block, BlockNames, BlockIds };

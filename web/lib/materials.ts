@@ -1,0 +1,46 @@
+// These are essentially all the items in crafting that are not used under build materials
+enum Material {
+  IronIngot = 'iron_ingot',
+  GoldIngot = 'gold_ingot',
+  DiamondGem = 'diamond_gem',
+  GraphiteIngot = 'graphite_ingot',
+  SteelIngot = 'steel_ingot',
+  RedstoneDust = 'redstone_dust',
+  Stick = 'stick',
+  Sand = 'sand',
+  Glass = 'glass',
+  WoodenPlank = 'wooden_plank',
+  Cobblestone = 'cobblestone',
+  Stone = 'stone',
+  NetherQuartz = 'nether_quartz',
+  Chest = 'chest',
+  Hopper = 'hopper',
+  Comparator = 'comparator',
+  Piston = 'piston',
+  Uranium = 'uranium',
+  RedstoneTorch = 'redstone_torch',
+}
+
+const MaterialNames = new Map([
+  [Material.IronIngot, 'Iron Ingot'],
+  [Material.GoldIngot, 'Gold Ingot'],
+  [Material.DiamondGem, 'Diamond'],
+  [Material.GraphiteIngot, 'Graphite Ingot'],
+  [Material.SteelIngot, 'Steel Ingot'],
+  [Material.RedstoneDust, 'Redstone Dust'],
+  [Material.Stick, 'Stick'],
+  [Material.Sand, 'Sand'],
+  [Material.Glass, 'Glass'],
+  [Material.WoodenPlank, 'Wooden Plank'],
+  [Material.Cobblestone, 'Cobblestone'],
+  [Material.Stone, 'Stone'],
+  [Material.NetherQuartz, 'Nether Quartz'],
+  [Material.Chest, 'Chest'],
+  [Material.Hopper, 'Hopper'],
+  [Material.Comparator, 'Comparator'],
+  [Material.Piston, 'Piston'],
+  [Material.Uranium, 'Uranium / Yellorium'],
+  [Material.RedstoneTorch, 'Redstone Torch'],
+]);
+
+export { Material, MaterialNames };

@@ -5,6 +5,81 @@ type BlockCost = { [item: string]: number };
 type ReactorBlock = { basic: BlockCost; reinforced: BlockCost };
 
 export const BlockCosts: Partial<Record<string, BlockCost | ReactorBlock>> = {
+  [Block.Emerald]: {
+    [Material.EmeraldGem]: 9,
+  },
+  [Block.Copper]: {
+    [Material.CopperIngot]: 9,
+  },
+  [Block.Netherite]: {
+    [Material.NetheriteIngot]: 9,
+  },
+  [Block.Bronze]: {
+    [Material.BronzeIngot]: 9,
+  },
+  [Block.Tin]: {
+    [Material.TinIngot]: 9,
+  },
+  [Block.Osmium]: {
+    [Material.OsmiumIngot]: 9,
+  },
+  [Block.Nickel]: {
+    [Material.NickelIngot]: 9,
+  },
+  [Block.Brass]: {
+    [Material.BrassIngot]: 9,
+  },
+  [Block.Zinc]: {
+    [Material.ZincIngot]: 9,
+  },
+  [Block.Aluminum]: {
+    [Material.AluminumIngot]: 9,
+  },
+  [Block.Silver]: {
+    [Material.SilverIngot]: 9,
+  },
+  [Block.Lead]: {
+    [Material.LeadIngot]: 9,
+  },
+  [Block.Platinum]: {
+    [Material.PlatinumIngot]: 9,
+  },
+  [Block.Steel]: {
+    [Material.SteelIngot]: 9,
+  },
+  [Block.Invar]: {
+    [Material.InvarIngot]: 9,
+  },
+  [Block.RefinedObsidian]: {
+    [Material.RefinedObsidianIngot]: 9,
+  },
+  [Block.RefinedGlowstone]: {
+    [Material.RefinedGlowstoneIngot]: 9,
+  },
+  [Block.Enderium]: {
+    [Material.EnderiumIngot]: 9,
+  },
+  [Block.Electrum]: {
+    [Material.ElectrumIngot]: 9,
+  },
+  [Block.Signalum]: {
+    [Material.SignalumIngot]: 9,
+  },
+  [Block.Lumium]: {
+    [Material.LumiumIngot]: 9,
+  },
+  [Block.Manasteel]: {
+    [Material.ManasteelIngot]: 9,
+  },
+  [Block.Elementium]: {
+    [Material.ElementiumIngot]: 9,
+  },
+  [Block.Terrasteel]: {
+    [Material.TerrasteelIngot]: 9,
+  },
+  [Block.Apatite]: {
+    [Material.ApatiteGem]: 9,
+  },
   [Block.Gold]: {
     [Material.GoldIngot]: 9,
   },

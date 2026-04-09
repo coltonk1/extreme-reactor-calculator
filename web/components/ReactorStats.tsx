@@ -20,7 +20,6 @@ export default function ReactorStats({
     <div className="space-y-2">
       <div>
         <h2 className="text-lg font-semibold">Reactor Stats</h2>
-        <p className="text-xs text-neutral-300/60">Values assume default mod configuration settings</p>
       </div>
       {reactor.getNumControlRods() === 0 && <div className="text-sm text-red-700 bg-red-100 px-3 py-2 rounded w-full">Place a control rod for stats to update</div>}
 

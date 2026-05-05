@@ -33,12 +33,12 @@ export default function Sidebar({
 }) {
   return (
     <div className="w-fit border-l border-black bg-neutral-900 px-6 py-5 space-y-8 text-neutral-300 overflow-auto">
-      <ShareSection
+      {/* <ShareSection
         reactor={reactor}
         fuelUsageMultiplier={fuelUsageMultiplier}
         powerProductionMultiplier={powerProductionMultiplier}
         reactorPowerProductionMultiplier={reactorPowerProductionMultiplier}
-      />
+      /> */}
       <ReactorSettings
         reactor={reactor}
         setReactor={setReactor}

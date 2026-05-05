@@ -17,13 +17,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`h-full antialiased`}>
       <body className="max-h-screen h-full flex flex-col bg-neutral-800">
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/90 text-neutral-200 lg:hidden">
-          <div className="max-w-sm text-center px-6">
-            <h2 className="text-xl font-semibold mb-2">Larger screen required</h2>
-            <p className="text-sm text-neutral-400">This calculator is designed for desktop layouts. Please open it on a larger device.</p>
-          </div>
-        </div>
-
         <header className="h-14 py-6 flex items-center px-6 bg-neutral-950">
           <h1 className="text-lg font-semibold tracking-tight text-neutral-200">Extreme Reactor 2 Calculator</h1>
         </header>

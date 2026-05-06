@@ -17,15 +17,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`h-full antialiased`}>
       <body className="max-h-screen h-full flex flex-col bg-neutral-800">
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/90 text-neutral-200 lg:hidden">
-          <div className="max-w-sm text-center px-6">
-            <h2 className="text-xl font-semibold mb-2">Larger screen required</h2>
-            <p className="text-sm text-neutral-400">This calculator is designed for desktop layouts. Please open it on a larger device.</p>
+        <header className="h-14 py-6 flex justify-between items-center px-6 bg-neutral-950">
+          <Link href="/" className="text-lg font-semibold tracking-tight text-neutral-200">
+            Extreme Reactor 2 Calculator
+          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/" className="text-neutral-400 hover:text-neutral-200">
+              Calculator
+            </Link>
+            <Link href="/about" className="text-neutral-400 hover:text-neutral-200">
+              About
+            </Link>
           </div>
-        </div>
-
-        <header className="h-14 py-6 flex items-center px-6 bg-neutral-950">
-          <h1 className="text-lg font-semibold tracking-tight text-neutral-200">Extreme Reactor 2 Calculator</h1>
         </header>
         <Suspense
           fallback={
@@ -34,9 +37,16 @@ export default function RootLayout({
             </div>
           }
         >
+          <div className="md:hidden fixed inset-0 bg-neutral-900/95 z-50 flex items-center justify-center p-6" aria-hidden="true">
+            <div className="text-center max-w-sm">
+              <p className="text-white text-lg font-semibold mb-2">Desktop required</p>
+              <p className="text-neutral-400 text-sm">This tool is not usable on small screens. Please open it on a larger device.</p>
+            </div>
+          </div>
+
           <main className="flex-1 overflow-hidden">{children}</main>
         </Suspense>
-        <footer className="h-10 flex items-center justify-center gap-6 text-sm text-neutral-400 bg-neutral-950 border-t border-black">
+        <footer className="h-fit py-2 flex items-center justify-center gap-6 text-sm text-neutral-400 bg-neutral-950">
           <Link href="https://github.com/coltonk1/extreme-reactor-calculator/blob/master/LICENSE.md" target="_blank" className="hover:text-neutral-200">
             License
           </Link>

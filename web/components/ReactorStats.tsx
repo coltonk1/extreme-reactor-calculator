@@ -21,7 +21,11 @@ export default function ReactorStats({
       <div>
         <h2 className="text-lg font-semibold">Reactor Stats</h2>
       </div>
-      {reactor.getNumControlRods() === 0 && <div className="text-sm text-red-700 bg-red-100 px-3 py-2 rounded w-full">Place a control rod for stats to update</div>}
+      {reactor.getNumControlRods() === 0 && (
+        <div className="flex items-center gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/30 px-3 py-2 rounded">
+          <span className="font-medium">No control rods. Place one to update stats</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
         <span className="text-neutral-300/60">Fuel Heat</span>

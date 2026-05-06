@@ -1,6 +1,23 @@
 import { Block } from '@/lib/blocks';
+import clsx from 'clsx';
 
-export default function ReactorItem({ x, z, casing, rows, cols, block, updateReactor }: { x: number; z: number; casing: boolean; rows: number; cols: number; block: Block | null; updateReactor: (x: number, z: number) => void }) {
+export default function ReactorItem({
+  x,
+  z,
+  casing,
+  rows,
+  cols,
+  block,
+  updateReactor,
+}: {
+  x: number;
+  z: number;
+  casing: boolean;
+  rows: number;
+  cols: number;
+  block: Block | null;
+  updateReactor: (x: number, z: number) => void;
+}) {
   const getCasingImage = (x: number, z: number) => {
     const left = x === -1;
     const right = x === cols - 2;
@@ -21,7 +38,7 @@ export default function ReactorItem({ x, z, casing, rows, cols, block, updateRea
 
   return (
     <div
-      className={`bg-white/10 hover:bg-white ${!casing && 'cursor-pointer hover:opacity-35'} bg-cover select-none`}
+      className={clsx('bg-white/10 bg-cover select-none hover:bg-white', !casing && 'cursor-pointer hover:opacity-50')}
       style={{
         backgroundImage: `${getCasingImage(x, z)}`,
         imageRendering: 'pixelated',

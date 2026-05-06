@@ -2,6 +2,7 @@ import { getCostOfBlock } from '@/lib/blockCosts';
 import { Block, BlockNames } from '@/lib/blocks';
 import { Material, MaterialNames } from '@/lib/materials';
 import { Reactor } from '@/lib/reactor_simulation';
+import clsx from 'clsx';
 import { useState } from 'react';
 
 export default function RawCostComponent({ reactor }: { reactor: Reactor }) {
@@ -31,16 +32,15 @@ export default function RawCostComponent({ reactor }: { reactor: Reactor }) {
 
   return (
     <>
-      <div className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={steelAvailable}
-          onChange={e => {
-            setSteelAvailable(() => e.target.checked);
-          }}
-          className="w-4 h-4 accent-blue-500 cursor-pointer"
-        />
-        <p className="text-neutral-300/80">Modpack includes steel ingots</p>
+      <div className="flex items-center justify-between py-2 cursor-pointer" onClick={() => setSteelAvailable(v => !v)}>
+        <div>
+          <p className="text-sm">Steel Ingots</p>
+          <p className="text-xs text-neutral-500">Modpack includes steel ingots</p>
+        </div>
+
+        <div className={clsx('relative w-10 h-5 rounded-full transition', steelAvailable ? 'bg-blue-500' : 'bg-neutral-600')}>
+          <span className={clsx('absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition', steelAvailable && 'translate-x-5')} />
+        </div>
       </div>
       <div>
         {sortedCostTotals.map(([material, total], index) => (

@@ -27,6 +27,13 @@ export default function RootLayout({
             </div>
           }
         >
+          <div className="md:hidden fixed inset-0 bg-neutral-900/95 z-50 flex items-center justify-center p-6" aria-hidden="true">
+            <div className="text-center max-w-sm">
+              <p className="text-white text-lg font-semibold mb-2">Desktop required</p>
+              <p className="text-neutral-400 text-sm">This tool is not usable on small screens. Please open it on a larger device.</p>
+            </div>
+          </div>
+
           <main className="flex-1 overflow-hidden">{children}</main>
         </Suspense>
         <footer className="h-fit py-2 flex items-center justify-center gap-6 text-sm text-neutral-400 bg-neutral-950">

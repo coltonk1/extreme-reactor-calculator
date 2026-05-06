@@ -175,6 +175,27 @@ export default function Home() {
     setReactor(reactor.clone());
   };
 
+  const createShareURL = () => {
+    const numericMap = reactor.getReactorMap().map(row => row.map(block => BlockIds[block]));
+
+    const reactorPayload = {
+      map: numericMap,
+      ratio: reactor.getInsertionRatio(),
+      width: reactor.width,
+      depth: reactor.depth,
+      height: reactor.height,
+      isActivelyCooled: reactor.getActivelyCooled(),
+      fuelUsageMultiplier,
+      powerProductionMultiplier,
+      reactorPowerProductionMultiplier,
+    };
+
+    const encoded = compressToEncodedURIComponent(JSON.stringify(reactorPayload));
+
+    const shareUrl = `${window.location.origin}/?reactor=${encoded}`;
+    return shareUrl;
+  };
+
   return (
     <div className="flex flex-1 mx-auto w-full h-full">
       {showShareModal && (
@@ -198,17 +219,17 @@ export default function Home() {
               <input
                 type="text"
                 readOnly
-                value={window.location.href}
+                value={createShareURL()}
                 className="w-full p-2 bg-neutral-800 border border-neutral-700 rounded text-sm text-neutral-200 cursor-pointer outline-none"
                 onClick={e => {
                   (e.target as HTMLInputElement).select();
-                  navigator.clipboard.writeText(window.location.href);
+                  navigator.clipboard.writeText(createShareURL());
                 }}
               />
               <div
                 className="bg-blue-500 p-2 rounded text-blue-950 text-xl cursor-pointer hover:opacity-80"
                 onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
+                  navigator.clipboard.writeText(createShareURL());
                   setCopied(true);
                   setTimeout(() => {
                     setCopied(false);

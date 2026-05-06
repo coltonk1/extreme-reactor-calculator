@@ -29,7 +29,7 @@ export default function RootLayout({
         >
           <main className="flex-1 overflow-hidden">{children}</main>
         </Suspense>
-        <footer className="h-10 flex items-center justify-center gap-6 text-sm text-neutral-400 bg-neutral-950 border-t border-black">
+        <footer className="h-fit py-2 flex items-center justify-center gap-6 text-sm text-neutral-400 bg-neutral-950">
           <Link href="https://github.com/coltonk1/extreme-reactor-calculator/blob/master/LICENSE.md" target="_blank" className="hover:text-neutral-200">
             License
           </Link>

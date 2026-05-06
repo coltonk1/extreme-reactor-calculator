@@ -25,7 +25,7 @@ export default function Home() {
 
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [copiedImage, setCopiedImage] = useState(false);
+  // const [copiedImage, setCopiedImage] = useState(false);
   const [copyingImage, setCopyingImage] = useState(false);
   const reactorImageRef = useRef<HTMLImageElement>(null);
 
@@ -241,7 +241,12 @@ export default function Home() {
       )}
 
       <BlockPalette selectedBlock={selectedBlock} setSelectedBlock={setSelectedBlock} />
-      <div className="flex flex-col relative gap-10 items-center flex-1 overflow-auto min-h-0">
+      <div
+        className="flex flex-col relative gap-10 items-center flex-1 overflow-auto min-h-0"
+        style={{
+          boxShadow: 'inset 0 0 2rem #0004',
+        }}
+      >
         <div className="sticky top-4 z-20 flex gap-2">
           <div
             className="bg-blue-500 p-2 rounded text-blue-950 text-xl cursor-pointer hover:opacity-80 relative group"

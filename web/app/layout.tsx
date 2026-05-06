@@ -17,8 +17,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`h-full antialiased`}>
       <body className="max-h-screen h-full flex flex-col bg-neutral-800">
-        <header className="h-14 py-6 flex items-center px-6 bg-neutral-950">
-          <h1 className="text-lg font-semibold tracking-tight text-neutral-200">Extreme Reactor 2 Calculator</h1>
+        <header className="h-14 py-6 flex justify-between items-center px-6 bg-neutral-950">
+          <Link href="/" className="text-lg font-semibold tracking-tight text-neutral-200">
+            Extreme Reactor 2 Calculator
+          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/" className="text-neutral-400 hover:text-neutral-200">
+              Calculator
+            </Link>
+            <Link href="/about" className="text-neutral-400 hover:text-neutral-200">
+              About
+            </Link>
+          </div>
         </header>
         <Suspense
           fallback={

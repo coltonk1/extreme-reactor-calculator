@@ -1,3 +1,4 @@
+// Defines all reactor blocks and shared block metadata used by the simulator and UI.
 // This enum determines the order in which the placeable blocks will be shown
 enum Block {
   Air = 'air',
@@ -52,7 +53,7 @@ enum Block {
 }
 
 // NotPlaceableBlocks will be excluded from being displayed on the Moderator list
-export const NotPlaceableBlock = new Set<Block>([Block.ReactorAccessPort, Block.ReactorCasing, Block.ReactorController, Block.FuelRod]);
+export const NotPlaceableBlocks = new Set<Block>([Block.ReactorAccessPort, Block.ReactorCasing, Block.ReactorController, Block.FuelRod]);
 // BasicOrReinforcedBlocks will display under build materials with 'Reinforced' or 'Basic' depending on reactor type
 export const BasicOrReinforcedBlocks = new Set<Block>([Block.ReactorAccessPort, Block.ReactorCasing, Block.ReactorControlRod, Block.ReactorController, Block.FuelRod]);
 

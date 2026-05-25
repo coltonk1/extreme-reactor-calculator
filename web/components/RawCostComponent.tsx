@@ -14,10 +14,10 @@ export default function RawCostComponent({ reactor }: { reactor: Reactor }) {
     return MaterialNames.get(resource as Material) ?? BlockNames.get(resource as Block) ?? resource;
   };
 
-  [...reactor.getLayerBlockCounts()].forEach(([block, count]) => {
+  [...reactor.blockCounts].forEach(([block, count]) => {
     if (block === Block.Air || count === 0) return;
     const reactorIsLarge = reactor.height > 3 || reactor.width > 3 || reactor.depth > 3;
-    const reactorIsReinforced = reactorIsLarge || reactor.getActivelyCooled();
+    const reactorIsReinforced = reactorIsLarge || reactor.isActivelyCooled;
 
     const cost = getCostOfBlock(block, reactorIsReinforced, steelAvailable);
 

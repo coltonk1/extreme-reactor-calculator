@@ -1,4 +1,4 @@
-import { Block, BlockNames, NotPlaceableBlock } from '@/lib/blocks';
+import { Block, BlockNames, NotPlaceableBlocks } from '@/lib/blocks';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { clsx } from 'clsx';
@@ -16,7 +16,7 @@ export default function BlockPalette({ selectedBlock, setSelectedBlock }: { sele
 
   const allBlocks: Record<string, Block[]> = {};
 
-  for (const block of Object.values(Block).filter(block => !NotPlaceableBlock.has(block))) {
+  for (const block of Object.values(Block).filter(block => !NotPlaceableBlocks.has(block))) {
     if (block === nextTitlePoints[titleIndex]) {
       titleIndex++;
     }

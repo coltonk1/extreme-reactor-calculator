@@ -6,26 +6,20 @@ import { Block, BlockIds } from '@/lib/blocks';
 import { presets } from '@/lib/configPresets';
 import { Fuel } from '@/lib/fuels';
 import { Reactor } from '@/lib/reactor_simulation';
+import { useReactorState } from '@/lib/useReactorState';
 import { toBlob } from 'html-to-image';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { LuCheck, LuCopy, LuDownload, LuLoader, LuRotateCcw, LuShare2, LuX } from 'react-icons/lu';
 
 export default function Home() {
+  const reactorState = useReactorState();
   const searchParams = useSearchParams();
   const reactorParam = searchParams.get('reactor');
-  const [selectedBlock, setSelectedBlock] = useState(Block.Air);
-  const [activelyCooled, setActivelyCooled] = useState(false);
-  const [reactor, setReactor] = useState(new Reactor(7, 7, 7, 0, Fuel.Uranium, false));
-
-  const [powerProductionMultiplier, setPowerProductionMultiplier] = useState(1);
-  const [reactorPowerProductionMultiplier, setReactorPowerProductionMultiplier] = useState(1);
-  const [fuelUsageMultiplier, setFuelUsageMultiplier] = useState(1);
 
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
-  // const [copiedImage, setCopiedImage] = useState(false);
   const [copyingImage, setCopyingImage] = useState(false);
   const reactorImageRef = useRef<HTMLImageElement>(null);
 
@@ -86,17 +80,17 @@ export default function Home() {
         const newReactor = new Reactor(width, depth, height, ratio, Fuel.Uranium, isActivelyCooled || false);
         map.forEach((row: number[], z: number) => {
           row.forEach((blockId: number, x: number) => {
-            newReactor.setCol(z, x, Object.values(Block)[blockId]);
+            newReactor.setBlock(z, x, Object.values(Block)[blockId]);
           });
         });
 
         newReactor.simulate();
 
-        setActivelyCooled(isActivelyCooled || false);
-        setFuelUsageMultiplier(fuelUsageMultiplier || presets.default.fuel);
-        setPowerProductionMultiplier(powerProductionMultiplier || presets.default.power);
-        setReactorPowerProductionMultiplier(reactorPowerProductionMultiplier || presets.default.reactorPower);
-        setReactor(newReactor);
+        reactorState.setActivelyCooled(isActivelyCooled || false);
+        reactorState.setFuelUsageMultiplier(fuelUsageMultiplier || presets.default.fuel);
+        reactorState.setPowerProductionMultiplier(powerProductionMultiplier || presets.default.power);
+        reactorState.setReactorPowerProductionMultiplier(reactorPowerProductionMultiplier || presets.default.reactorPower);
+        reactorState.setReactor(newReactor);
       } catch (e) {
         console.error('Failed to load reactor from URL:', e);
       }
@@ -106,95 +100,39 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const resizeReactor = (newCols: number, newRows: number, newHeight: number) => {
-    setReactor(() => new Reactor(newCols, newRows, newHeight, 0, Fuel.Uranium, activelyCooled));
-  };
-
-  useEffect(() => {
-    const numericMap = reactor.getReactorMap().map(row => row.map(block => BlockIds[block]));
+  const createShareURL = useCallback(() => {
+    const numericMap = reactorState.reactor.reactorMap.map(row => row.map(block => BlockIds[block]));
 
     const reactorPayload = {
       map: numericMap,
-      ratio: reactor.getInsertionRatio(),
-      width: reactor.width,
-      depth: reactor.depth,
-      height: reactor.height,
-      isActivelyCooled: reactor.getActivelyCooled(),
-      fuelUsageMultiplier,
-      powerProductionMultiplier,
-      reactorPowerProductionMultiplier,
-    };
-
-    window.history.replaceState(null, '', `/?reactor=${compressToEncodedURIComponent(JSON.stringify(reactorPayload))}`);
-  }, [fuelUsageMultiplier, powerProductionMultiplier, reactor, reactorPowerProductionMultiplier]);
-
-  useEffect(() => {
-    setReactor(prev => {
-      const next = prev.clone();
-      next.updateActivelyCooled(activelyCooled);
-      return next;
-    });
-  }, [activelyCooled]);
-
-  const updateReactor = (x: number, z: number) => {
-    reactor.setCol(z, x, selectedBlock);
-    reactor.reset();
-    reactor.simulate();
-    setReactor(reactor.clone());
-  };
-
-  const findOptimalRatio = () => {
-    let bestRatio = 0;
-    let bestEfficiency = 0;
-    for (let ratio = 0; ratio <= 100; ratio += 5) {
-      reactor.updateInsertionRatio(ratio);
-      const outputMetric = reactor.getActivelyCooled() ? reactor.getSteamGenerated() : reactor.getTotalEnergy();
-      const efficiency = reactor.getFuelUsage() > 0 ? outputMetric / reactor.getFuelUsage() : 0;
-      if (efficiency > bestEfficiency) {
-        bestEfficiency = efficiency;
-        bestRatio = ratio;
-      } else {
-        break;
-      }
-    }
-
-    bestEfficiency = 0;
-    for (let ratio = bestRatio - 5; ratio <= bestRatio + 5; ratio++) {
-      if (ratio < 0 || ratio > 100) continue;
-      reactor.updateInsertionRatio(ratio);
-      const outputMetric = reactor.getActivelyCooled() ? reactor.getSteamGenerated() : reactor.getTotalEnergy();
-      const efficiency = reactor.getFuelUsage() > 0 ? outputMetric / reactor.getFuelUsage() : 0;
-      if (efficiency > bestEfficiency) {
-        bestEfficiency = efficiency;
-        bestRatio = ratio;
-      } else {
-        break;
-      }
-    }
-    reactor.updateInsertionRatio(bestRatio);
-    setReactor(reactor.clone());
-  };
-
-  const createShareURL = () => {
-    const numericMap = reactor.getReactorMap().map(row => row.map(block => BlockIds[block]));
-
-    const reactorPayload = {
-      map: numericMap,
-      ratio: reactor.getInsertionRatio(),
-      width: reactor.width,
-      depth: reactor.depth,
-      height: reactor.height,
-      isActivelyCooled: reactor.getActivelyCooled(),
-      fuelUsageMultiplier,
-      powerProductionMultiplier,
-      reactorPowerProductionMultiplier,
+      ratio: reactorState.reactor.insertionRatio,
+      width: reactorState.reactor.width,
+      depth: reactorState.reactor.depth,
+      height: reactorState.reactor.height,
+      isActivelyCooled: reactorState.reactor.isActivelyCooled,
+      fuelUsageMultiplier: reactorState.fuelUsageMultiplier,
+      powerProductionMultiplier: reactorState.powerProductionMultiplier,
+      reactorPowerProductionMultiplier: reactorState.reactorPowerProductionMultiplier,
     };
 
     const encoded = compressToEncodedURIComponent(JSON.stringify(reactorPayload));
 
     const shareUrl = `${window.location.origin}/?reactor=${encoded}`;
     return shareUrl;
-  };
+  }, [reactorState.reactor, reactorState.fuelUsageMultiplier, reactorState.powerProductionMultiplier, reactorState.reactorPowerProductionMultiplier]);
+
+  useEffect(() => {
+    window.history.replaceState(null, '', createShareURL());
+  }, [createShareURL, reactorState.fuelUsageMultiplier, reactorState.powerProductionMultiplier, reactorState.reactor, reactorState.reactorPowerProductionMultiplier]);
+
+  useEffect(() => {
+    reactorState.setReactor(prev => {
+      const next = prev.clone();
+      next.updateActivelyCooled(reactorState.activelyCooled);
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reactorState.activelyCooled]);
 
   return (
     <div className="flex flex-1 mx-auto w-full h-full">
@@ -261,18 +199,22 @@ export default function Home() {
         </div>
       )}
 
-      <BlockPalette selectedBlock={selectedBlock} setSelectedBlock={setSelectedBlock} />
+      {/* LEFT PANEL */}
+      <BlockPalette selectedBlock={reactorState.selectedBlock} setSelectedBlock={reactorState.setSelectedBlock} />
+
+      {/* CENTER SECTION */}
       <div
         className="flex flex-col relative gap-10 items-center flex-1 overflow-auto min-h-0"
         style={{
           boxShadow: 'inset 0 0 2rem #0004',
         }}
       >
+        {/* TOP BUTTONS */}
         <div className="sticky top-4 z-20 flex gap-2">
           <div
             className="bg-blue-500 p-2 rounded text-blue-950 text-xl cursor-pointer hover:opacity-80 relative group"
             onClick={() => {
-              setReactor(prev => new Reactor(prev.width, prev.depth, prev.height, prev.getInsertionRatio(), Fuel.Uranium, prev.getActivelyCooled()));
+              reactorState.setReactor(prev => new Reactor(prev.width, prev.depth, prev.height, prev.insertionRatio, Fuel.Uranium, prev.isActivelyCooled));
             }}
           >
             <LuRotateCcw />
@@ -287,6 +229,7 @@ export default function Home() {
             <LuShare2 />
           </div>
         </div>
+
         <div
           className="m-auto"
           style={{
@@ -299,24 +242,13 @@ export default function Home() {
             boxShadow: 'inset 0 0 1rem 2rem #262626',
           }}
         >
-          <ReactorGrid reactor={reactor} updateReactor={updateReactor} />
+          {/* DISPLAYED REACTOR */}
+          <ReactorGrid reactor={reactorState.reactor} updateReactor={reactorState.updateReactor} />
         </div>
       </div>
 
-      <Sidebar
-        reactor={reactor}
-        setReactor={setReactor}
-        activelyCooled={activelyCooled}
-        setActivelyCooled={setActivelyCooled}
-        resizeReactor={resizeReactor}
-        findOptimalRatio={findOptimalRatio}
-        powerProductionMultiplier={powerProductionMultiplier}
-        reactorPowerProductionMultiplier={reactorPowerProductionMultiplier}
-        fuelUsageMultiplier={fuelUsageMultiplier}
-        setPowerProductionMultiplier={setPowerProductionMultiplier}
-        setReactorPowerProductionMultiplier={setReactorPowerProductionMultiplier}
-        setFuelUsageMultiplier={setFuelUsageMultiplier}
-      />
+      {/* RIGHT PANEL */}
+      <Sidebar reactorState={reactorState} />
     </div>
   );
 }

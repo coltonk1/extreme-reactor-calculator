@@ -1,4 +1,5 @@
-// These are essentially all the items in crafting that are not used under build materials
+// Defines crafting materials and display names used for recipe calculations and UI output.
+// These are essentially all the items in crafting that are not used under the simulator as placeable blocks, but are used in the recipes for those blocks.
 enum Material {
   IronIngot = 'iron_ingot',
   GoldIngot = 'gold_ingot',

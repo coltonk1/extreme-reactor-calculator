@@ -1,3 +1,5 @@
+// Defines moderator properties for each block used in the reactor simulation.
+
 import { Block } from './blocks';
 
 type ModeratorData = {
@@ -86,4 +88,6 @@ function setupModerators() {
   addModerator(Block.Unobtainium, [0.972, 0.91, 1 / 3.074, 5.0]);
 }
 
-export { setupModerators, moderators };
+setupModerators();
+
+export { moderators };

@@ -5,13 +5,13 @@ import Image from 'next/image';
 export default function CraftedCostComponent({ reactor }: { reactor: Reactor }) {
   return (
     <div>
-      {[...reactor.getLayerBlockCounts()]
+      {[...reactor.blockCounts]
         .sort((a, b) => b[1] - a[1])
         .filter(val => val[0] !== Block.Air && val[1] !== 0)
         .map(([block, count], index) => {
           const reactorIsLarge = reactor.height > 3 || reactor.width > 3 || reactor.depth > 3;
           let prepend = '';
-          const reactorIsReinforced = reactorIsLarge || reactor.getActivelyCooled();
+          const reactorIsReinforced = reactorIsLarge || reactor.isActivelyCooled;
           if (BasicOrReinforcedBlocks.has(block)) {
             if (reactorIsReinforced) {
               prepend = 'Reinforced ';

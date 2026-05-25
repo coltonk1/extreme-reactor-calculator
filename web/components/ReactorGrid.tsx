@@ -2,7 +2,7 @@ import { Reactor } from '@/lib/reactor_simulation';
 import ReactorItem from './ReactorItem';
 
 export default function ReactorGrid({ reactor, updateReactor }: { reactor: Reactor; updateReactor: (x: number, z: number) => void }) {
-  const reactorMap = reactor.getReactorMap();
+  const reactorMap = reactor.reactorMap;
 
   return (
     <div

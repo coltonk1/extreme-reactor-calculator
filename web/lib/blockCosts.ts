@@ -1,3 +1,4 @@
+// Defines all crafting costs for blocks used in the simulator.
 import { Block } from './blocks';
 import { Material } from './materials';
 

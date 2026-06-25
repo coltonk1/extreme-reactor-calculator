@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 export const metadata: Metadata = {
   title: 'Extreme Reactors 2 Calculator | Reactor Planner Tool',
@@ -133,6 +134,8 @@ export default function RootLayout({
             Questions / Suggestions / Issues
           </Link>
         </footer>
+
+        <GoogleAnalytics gaId="G-5Q8T3VNG19" />
       </body>
     </html>
   );

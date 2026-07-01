@@ -22,9 +22,12 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col bg-neutral-800">
         <div className="h-[calc(100dvh-2.5rem)] flex flex-col">
           <header className="h-14 py-6 flex justify-between items-center px-6 bg-neutral-950 sticky top-0 z-30">
-            <Link href="/" className="text-lg font-semibold tracking-tight text-neutral-200">
-              Extreme Reactor 2 Calculator
-            </Link>
+            {
+              // eslint-disable-next-line @next/next/no-html-link-for-pages
+              <a href="/" className="text-lg font-semibold tracking-tight text-neutral-200">
+                Extreme Reactor 2 Calculator
+              </a>
+            }
             <div className="flex items-center gap-6">
               <Link href="/calculator" className="text-neutral-400 hover:text-neutral-200">
                 Calculator

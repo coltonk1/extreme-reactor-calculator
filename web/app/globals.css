@@ -13,3 +13,8 @@
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+.hero-gradient {
+  background-image: radial-gradient(ellipse 125% 250% at top left, #ffffff05 50%, #0000 50.1%);
+  box-shadow: inset #262626 0 0 3rem 3rem;
+}

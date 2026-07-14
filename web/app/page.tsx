@@ -1,24 +1,29 @@
-'use client';
-
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
-export default function Page() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+type Props = {
+  searchParams: Promise<{
+    reactor?: string;
+  }>;
+};
 
-  useEffect(() => {
-    const reactor = searchParams.get('reactor');
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+  },
+};
 
-    if (reactor) {
-      router.replace(`/calculator?reactor=${encodeURIComponent(reactor)}`);
-    }
-  }, [router, searchParams]);
+export default async function Page({ searchParams }: Props) {
+  const { reactor } = await searchParams;
+
+  if (reactor) {
+    redirect(`/calculator?reactor=${encodeURIComponent(reactor)}`);
+  }
 
   return (
-    <main className="w-full overflow-y-auto h-full text-neutral-300">
+    <div className="w-full overflow-y-auto h-full text-neutral-300">
       <section className="w-full text-center px-6 py-20 hero-gradient">
         <div className="md:hidden max-w-md mx-auto rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 mb-4">
           <p className="text-sm text-red-200">
@@ -257,6 +262,6 @@ export default function Page() {
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

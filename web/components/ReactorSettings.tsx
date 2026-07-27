@@ -38,25 +38,25 @@ export default function ReactorSettings({ reactorState }: { reactorState: Return
           <div>
             <p className="text-xs text-neutral-400 mb-1">Preset</p>
             <select
-              value=""
+              value={reactorState.selectedPreset}
               className="w-full px-2 py-1.5 text-sm rounded bg-neutral-800 border border-neutral-600 text-white outline-none focus:bg-neutral-700 focus:border-neutral-400 cursor-pointer"
               onChange={e => {
                 const key = e.target.value as PresetKey;
-                if (!key) return;
-
                 const preset = presets[key];
+
+                reactorState.setSelectedPreset(key);
 
                 reactorState.setFuelUsageMultiplier(preset.fuel);
                 reactorState.setPowerProductionMultiplier(preset.power);
                 reactorState.setReactorPowerProductionMultiplier(preset.reactorPower);
               }}
             >
-              <option value="">Select preset</option>
               {Object.keys(presets).map(value => (
                 <option key={value} value={value}>
                   {value.replaceAll('_', ' ')}
                 </option>
               ))}
+              {reactorState.selectedPreset === 'CUSTOM' && <option value={'CUSTOM'}>{'CUSTOM'}</option>}
             </select>
           </div>
 
@@ -77,6 +77,7 @@ export default function ReactorSettings({ reactorState }: { reactorState: Return
                     const num = Number(v);
                     if (!isNaN(num) && num >= 0.5 && num <= 100) {
                       reactorState.setFuelUsageMultiplier(num);
+                      reactorState.setSelectedPreset('CUSTOM');
                     }
                   }}
                 />
@@ -100,6 +101,7 @@ export default function ReactorSettings({ reactorState }: { reactorState: Return
                     const num = Number(v);
                     if (!isNaN(num) && num >= 0.5 && num <= 100) {
                       reactorState.setPowerProductionMultiplier(num);
+                      reactorState.setSelectedPreset('CUSTOM');
                     }
                   }}
                 />
@@ -123,6 +125,7 @@ export default function ReactorSettings({ reactorState }: { reactorState: Return
                     const num = Number(v);
                     if (!isNaN(num) && num >= 0.5 && num <= 100) {
                       reactorState.setReactorPowerProductionMultiplier(num);
+                      reactorState.setSelectedPreset('CUSTOM');
                     }
                   }}
                 />

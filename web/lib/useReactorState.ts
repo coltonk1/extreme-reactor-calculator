@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Fuel } from './fuels';
 import { Reactor } from './reactor_simulation';
 import { Block } from './blocks';
+import { PresetKey } from './configPresets';
 
 export function useReactorState() {
   const [reactor, setReactor] = useState(new Reactor(7, 7, 7, 0, Fuel.Uranium, false));
@@ -12,6 +13,8 @@ export function useReactorState() {
   const [reactorPowerProductionMultiplier, setReactorPowerProductionMultiplier] = useState(1);
   const [fuelUsageMultiplier, setFuelUsageMultiplier] = useState(1);
   const [reinforcedPreferred, setReinforcedPreferred] = useState(false);
+
+  const [selectedPreset, setSelectedPreset] = useState<PresetKey | 'CUSTOM'>('default');
 
   const resizeReactor = (newCols: number, newRows: number, newHeight: number) => {
     setReactor(() => new Reactor(newCols, newRows, newHeight, 0, Fuel.Uranium, activelyCooled));
@@ -67,10 +70,12 @@ export function useReactorState() {
     reactorPowerProductionMultiplier,
     fuelUsageMultiplier,
     reinforcedPreferred,
+    selectedPreset,
     setPowerProductionMultiplier,
     setReactorPowerProductionMultiplier,
     setFuelUsageMultiplier,
     setReinforcedPreferred,
+    setSelectedPreset,
     resizeReactor,
     updateReactor,
     findOptimalRatio,

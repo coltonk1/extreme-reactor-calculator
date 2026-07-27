@@ -77,7 +77,7 @@ export default function Page() {
     if (reactorParam) {
       try {
         const decoded = JSON.parse(decompressFromEncodedURIComponent(reactorParam));
-        const { map, ratio, width, depth, height, isActivelyCooled, fuelUsageMultiplier, powerProductionMultiplier, reactorPowerProductionMultiplier } = decoded;
+        const { map, ratio, width, depth, height, isActivelyCooled, fuelUsageMultiplier, powerProductionMultiplier, reactorPowerProductionMultiplier, reinforcedPreferred } = decoded;
         const newReactor = new Reactor(width, depth, height, ratio, Fuel.Uranium, isActivelyCooled || false);
         map.forEach((row: number[], z: number) => {
           row.forEach((blockId: number, x: number) => {
@@ -87,6 +87,7 @@ export default function Page() {
 
         newReactor.simulate();
 
+        reactorState.setReinforcedPreferred(reinforcedPreferred || false);
         reactorState.setActivelyCooled(isActivelyCooled || false);
         reactorState.setFuelUsageMultiplier(fuelUsageMultiplier || presets.default.fuel);
         reactorState.setPowerProductionMultiplier(powerProductionMultiplier || presets.default.power);
@@ -114,17 +115,18 @@ export default function Page() {
       fuelUsageMultiplier: reactorState.fuelUsageMultiplier,
       powerProductionMultiplier: reactorState.powerProductionMultiplier,
       reactorPowerProductionMultiplier: reactorState.reactorPowerProductionMultiplier,
+      reinforcedPreferred: reactorState.reinforcedPreferred,
     };
 
     const encoded = compressToEncodedURIComponent(JSON.stringify(reactorPayload));
 
     const shareUrl = `${window.location.origin}/calculator/?reactor=${encoded}`;
     return shareUrl;
-  }, [reactorState.reactor, reactorState.fuelUsageMultiplier, reactorState.powerProductionMultiplier, reactorState.reactorPowerProductionMultiplier]);
+  }, [reactorState.reactor, reactorState.fuelUsageMultiplier, reactorState.powerProductionMultiplier, reactorState.reactorPowerProductionMultiplier, reactorState.reinforcedPreferred]);
 
   useEffect(() => {
     window.history.replaceState(null, '', createShareURL());
-  }, [createShareURL, reactorState.fuelUsageMultiplier, reactorState.powerProductionMultiplier, reactorState.reactor, reactorState.reactorPowerProductionMultiplier]);
+  }, [createShareURL, reactorState.fuelUsageMultiplier, reactorState.powerProductionMultiplier, reactorState.reactor, reactorState.reactorPowerProductionMultiplier, reactorState.reinforcedPreferred]);
 
   useEffect(() => {
     reactorState.setReactor(prev => {

@@ -1,10 +1,10 @@
-import { Reactor } from '@/lib/reactor_simulation';
 import { useState } from 'react';
 import CraftedCostComponent from './CraftedCostComponent';
 import RawCostComponent from './RawCostComponent';
 import clsx from 'clsx';
+import { useReactorState } from '@/lib/useReactorState';
 
-export default function BuildMaterialSection({ reactor }: { reactor: Reactor }) {
+export default function BuildMaterialSection({ reactorState }: { reactorState: ReturnType<typeof useReactorState> }) {
   const [showRaw, setShowRaw] = useState(false);
   return (
     <div className="space-y-2">
@@ -23,7 +23,7 @@ export default function BuildMaterialSection({ reactor }: { reactor: Reactor }) 
           Raw Materials
         </button>
       </div>
-      {showRaw ? <RawCostComponent reactor={reactor} /> : <CraftedCostComponent reactor={reactor} />}
+      {showRaw ? <RawCostComponent reactorState={reactorState} /> : <CraftedCostComponent reactorState={reactorState} />}
     </div>
   );
 }

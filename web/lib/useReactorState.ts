@@ -11,6 +11,7 @@ export function useReactorState() {
   const [powerProductionMultiplier, setPowerProductionMultiplier] = useState(1);
   const [reactorPowerProductionMultiplier, setReactorPowerProductionMultiplier] = useState(1);
   const [fuelUsageMultiplier, setFuelUsageMultiplier] = useState(1);
+  const [reinforcedPreferred, setReinforcedPreferred] = useState(false);
 
   const resizeReactor = (newCols: number, newRows: number, newHeight: number) => {
     setReactor(() => new Reactor(newCols, newRows, newHeight, 0, Fuel.Uranium, activelyCooled));
@@ -65,9 +66,11 @@ export function useReactorState() {
     powerProductionMultiplier,
     reactorPowerProductionMultiplier,
     fuelUsageMultiplier,
+    reinforcedPreferred,
     setPowerProductionMultiplier,
     setReactorPowerProductionMultiplier,
     setFuelUsageMultiplier,
+    setReinforcedPreferred,
     resizeReactor,
     updateReactor,
     findOptimalRatio,

@@ -6,14 +6,19 @@ export default function ReactorStats({
   powerProductionMultiplier,
   reactorPowerProductionMultiplier,
   fuelUsageMultiplier,
+  reinforcedPreferred,
 }: {
   reactor: Reactor;
   activelyCooled: boolean;
   powerProductionMultiplier: number;
   reactorPowerProductionMultiplier: number;
   fuelUsageMultiplier: number;
+  reinforcedPreferred: boolean;
 }) {
-  const energyAfterMultipliers = reactor.totalEnergy * powerProductionMultiplier * reactorPowerProductionMultiplier;
+  const reactorIsLarge = reactor.height > 3 || reactor.width > 3 || reactor.depth > 3;
+  const reactorIsReinforced = reactorIsLarge || reactor.isActivelyCooled || reinforcedPreferred;
+
+  const energyAfterMultipliers = reactor.totalEnergy * powerProductionMultiplier * reactorPowerProductionMultiplier * (reactorIsReinforced ? 1 : 0.8);
   const fuelAfterMultiplier = reactor.fuelUsage * fuelUsageMultiplier;
 
   return (

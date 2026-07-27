@@ -1,5 +1,7 @@
 # Extreme Reactors 2 Calculator
 
+[![Visitors](https://img.shields.io/endpoint?url=https%3A%2F%2Fcoltonkaraffa.com%2Fer2users%2F&style=for-the-badge&color=red)](https://er2.coltonkaraffa.com/)
+
 An interactive planner and simulator for Extreme Reactors 2 reactor layouts, a Minecraft mod that adds large multiblock power-generating reactors.
 
 This project is inspired by the original Big Reactors planner at

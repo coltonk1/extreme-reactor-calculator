@@ -2,10 +2,11 @@ import { getCostOfBlock } from '@/lib/blockCosts';
 import { Block, BlockNames } from '@/lib/blocks';
 import { Material, MaterialNames } from '@/lib/materials';
 import { Reactor } from '@/lib/reactor_simulation';
+import { useReactorState } from '@/lib/useReactorState';
 import clsx from 'clsx';
 import { useState } from 'react';
 
-export default function RawCostComponent({ reactor }: { reactor: Reactor }) {
+export default function RawCostComponent({ reactorState }: { reactorState: ReturnType<typeof useReactorState> }) {
   const [steelAvailable, setSteelAvailable] = useState(true);
 
   const costTotals: Partial<Record<Block | Material, number>> = {};
@@ -14,10 +15,10 @@ export default function RawCostComponent({ reactor }: { reactor: Reactor }) {
     return MaterialNames.get(resource as Material) ?? BlockNames.get(resource as Block) ?? resource;
   };
 
-  [...reactor.blockCounts].forEach(([block, count]) => {
+  [...reactorState.reactor.blockCounts].forEach(([block, count]) => {
     if (block === Block.Air || count === 0) return;
-    const reactorIsLarge = reactor.height > 3 || reactor.width > 3 || reactor.depth > 3;
-    const reactorIsReinforced = reactorIsLarge || reactor.isActivelyCooled;
+    const reactorIsLarge = reactorState.reactor.height > 3 || reactorState.reactor.width > 3 || reactorState.reactor.depth > 3;
+    const reactorIsReinforced = reactorIsLarge || reactorState.reactor.isActivelyCooled || reactorState.reinforcedPreferred;
 
     const cost = getCostOfBlock(block, reactorIsReinforced, steelAvailable);
 

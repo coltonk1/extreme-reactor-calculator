@@ -17,6 +17,9 @@ export default function ReactorSettings({ reactorState }: { reactorState: Return
     setPowerInputValue(reactorState.powerProductionMultiplier.toString());
   }, [reactorState.reactorPowerProductionMultiplier, reactorState.powerProductionMultiplier, reactorState.fuelUsageMultiplier]);
 
+  const reactorIsLarge = reactorState.reactor.height > 3 || reactorState.reactor.width > 3 || reactorState.reactor.depth > 3;
+  const isReinforced = reactorState.reinforcedPreferred || reactorIsLarge || reactorState.reactor.isActivelyCooled;
+
   const isValidNumber = (num: string | number) => {
     return !isNaN(Number(num)) && Number(num) >= 0.499 && Number(num) <= 100.01;
   };
@@ -185,6 +188,46 @@ export default function ReactorSettings({ reactorState }: { reactorState: Return
               </div>
             </div>
           </div>
+        </div>
+
+        <hr className="border-neutral-700/50 my-1"></hr>
+
+        <div className="space-y-2 py-2">
+          <div>
+            <p className="text-sm font-medium">Reactor Tier</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                reactorState.setReinforcedPreferred(false);
+              }}
+              disabled={reactorIsLarge || reactorState.activelyCooled}
+              className={clsx(
+                'rounded border px-3 py-2 text-sm transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
+                !isReinforced ? 'border-blue-500 bg-blue-500/10 text-blue-300' : 'border-neutral-600 bg-neutral-800 text-neutral-300',
+              )}
+            >
+              Basic
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                reactorState.setReinforcedPreferred(true);
+              }}
+              className={clsx(
+                'rounded border px-3 py-2 text-sm transition cursor-pointer',
+                isReinforced ? 'border-blue-500 bg-blue-500/10 text-blue-300' : 'border-neutral-600 bg-neutral-800 text-neutral-300',
+              )}
+            >
+              Reinforced
+            </button>
+          </div>
+
+          {reactorIsLarge && <p className="text-xs text-red-400">Reinforced is required for the current dimensions.</p>}
+          {reactorState.reactor.isActivelyCooled && <p className="text-xs text-red-400">Reinforced is required for active cooling.</p>}
         </div>
 
         <hr className="border-neutral-700/50 my-1"></hr>

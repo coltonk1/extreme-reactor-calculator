@@ -19,6 +19,7 @@ export default function Sidebar({ reactorState }: { reactorState: ReturnType<typ
             powerProductionMultiplier={reactorState.powerProductionMultiplier}
             reactorPowerProductionMultiplier={reactorState.reactorPowerProductionMultiplier}
             fuelUsageMultiplier={reactorState.fuelUsageMultiplier}
+            reinforcedPreferred={reactorState.reinforcedPreferred}
           />
         </div>
         <div className="flex border-b border-neutral-800 shadow-lg">
@@ -42,7 +43,7 @@ export default function Sidebar({ reactorState }: { reactorState: ReturnType<typ
           </button>
         </div>
       </div>
-      <div className="p-4">{showSettings ? <ReactorSettings reactorState={reactorState} /> : <BuildMaterialSection reactor={reactorState.reactor} />}</div>
+      <div className="p-4">{showSettings ? <ReactorSettings reactorState={reactorState} /> : <BuildMaterialSection reactorState={reactorState} />}</div>
     </div>
   );
 }

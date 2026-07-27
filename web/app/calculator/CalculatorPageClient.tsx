@@ -3,7 +3,7 @@ import BlockPalette from '@/components/BlockPalette';
 import ReactorGrid from '@/components/ReactorGrid';
 import Sidebar from '@/components/Sidebar';
 import { Block, BlockIds } from '@/lib/blocks';
-import { presets } from '@/lib/configPresets';
+import { PresetKey, presets } from '@/lib/configPresets';
 import { Fuel } from '@/lib/fuels';
 import { Reactor } from '@/lib/reactor_simulation';
 import { useReactorState } from '@/lib/useReactorState';
@@ -77,7 +77,7 @@ export default function Page() {
     if (reactorParam) {
       try {
         const decoded = JSON.parse(decompressFromEncodedURIComponent(reactorParam));
-        const { map, ratio, width, depth, height, isActivelyCooled, fuelUsageMultiplier, powerProductionMultiplier, reactorPowerProductionMultiplier, reinforcedPreferred } = decoded;
+        const { map, ratio, width, depth, height, isActivelyCooled, fuelUsageMultiplier, powerProductionMultiplier, reactorPowerProductionMultiplier, reinforcedPreferred, selectedPreset } = decoded;
         const newReactor = new Reactor(width, depth, height, ratio, Fuel.Uranium, isActivelyCooled || false);
         map.forEach((row: number[], z: number) => {
           row.forEach((blockId: number, x: number) => {
@@ -93,6 +93,14 @@ export default function Page() {
         reactorState.setPowerProductionMultiplier(powerProductionMultiplier || presets.default.power);
         reactorState.setReactorPowerProductionMultiplier(reactorPowerProductionMultiplier || presets.default.reactorPower);
         reactorState.setReactor(newReactor);
+        const matchedPreset = Object.entries(presets).find(([, preset]) => {
+          return (
+            preset.fuel === (fuelUsageMultiplier || presets.default.fuel) &&
+            preset.power === (powerProductionMultiplier || presets.default.power) &&
+            preset.reactorPower === (reactorPowerProductionMultiplier || presets.default.reactorPower)
+          );
+        });
+        reactorState.setSelectedPreset(selectedPreset ?? (matchedPreset ? (matchedPreset[0] as PresetKey) : 'CUSTOM'));
       } catch (e) {
         console.error('Failed to load reactor from URL:', e);
       }
@@ -116,17 +124,33 @@ export default function Page() {
       powerProductionMultiplier: reactorState.powerProductionMultiplier,
       reactorPowerProductionMultiplier: reactorState.reactorPowerProductionMultiplier,
       reinforcedPreferred: reactorState.reinforcedPreferred,
+      selectedPreset: reactorState.selectedPreset,
     };
 
     const encoded = compressToEncodedURIComponent(JSON.stringify(reactorPayload));
 
     const shareUrl = `${window.location.origin}/calculator/?reactor=${encoded}`;
     return shareUrl;
-  }, [reactorState.reactor, reactorState.fuelUsageMultiplier, reactorState.powerProductionMultiplier, reactorState.reactorPowerProductionMultiplier, reactorState.reinforcedPreferred]);
+  }, [
+    reactorState.reactor,
+    reactorState.fuelUsageMultiplier,
+    reactorState.powerProductionMultiplier,
+    reactorState.reactorPowerProductionMultiplier,
+    reactorState.reinforcedPreferred,
+    reactorState.selectedPreset,
+  ]);
 
   useEffect(() => {
     window.history.replaceState(null, '', createShareURL());
-  }, [createShareURL, reactorState.fuelUsageMultiplier, reactorState.powerProductionMultiplier, reactorState.reactor, reactorState.reactorPowerProductionMultiplier, reactorState.reinforcedPreferred]);
+  }, [
+    createShareURL,
+    reactorState.fuelUsageMultiplier,
+    reactorState.powerProductionMultiplier,
+    reactorState.reactor,
+    reactorState.reactorPowerProductionMultiplier,
+    reactorState.reinforcedPreferred,
+    reactorState.selectedPreset,
+  ]);
 
   useEffect(() => {
     reactorState.setReactor(prev => {

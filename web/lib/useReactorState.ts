@@ -17,7 +17,7 @@ export function useReactorState() {
   const [selectedPreset, setSelectedPreset] = useState<PresetKey | 'CUSTOM'>('default');
 
   const resizeReactor = (newCols: number, newRows: number, newHeight: number) => {
-    setReactor(() => new Reactor(newCols, newRows, newHeight, 0, Fuel.Uranium, activelyCooled));
+    setReactor(prev => new Reactor(newCols, newRows, newHeight, prev.insertionRatio, prev.currentFuel, activelyCooled));
   };
 
   const updateReactor = (x: number, z: number) => {

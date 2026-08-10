@@ -1,5 +1,6 @@
 import { getCostOfBlock } from '@/lib/blockCosts';
 import { Block, BlockNames } from '@/lib/blocks';
+import { Fuel } from '@/lib/fuels';
 import { Material, MaterialNames } from '@/lib/materials';
 import { Reactor } from '@/lib/reactor_simulation';
 import { useReactorState } from '@/lib/useReactorState';
@@ -18,7 +19,7 @@ export default function RawCostComponent({ reactorState }: { reactorState: Retur
   [...reactorState.reactor.blockCounts].forEach(([block, count]) => {
     if (block === Block.Air || count === 0) return;
     const reactorIsLarge = reactorState.reactor.height > 3 || reactorState.reactor.width > 3 || reactorState.reactor.depth > 3;
-    const reactorIsReinforced = reactorIsLarge || reactorState.reactor.isActivelyCooled || reactorState.reinforcedPreferred;
+    const reactorIsReinforced = reactorIsLarge || reactorState.reactor.isActivelyCooled || reactorState.reinforcedPreferred || reactorState.reactor.currentFuel === Fuel.Verderium;
 
     const cost = getCostOfBlock(block, reactorIsReinforced, steelAvailable);
 

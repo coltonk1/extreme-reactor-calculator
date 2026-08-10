@@ -27,7 +27,6 @@ export class Reactor {
   readonly innerSurfaceArea: number;
   readonly exteriorSurfaceArea: number;
   readonly fluidCapacity: number;
-  readonly currentFuel: Fuel;
 
   static ambientTemp = 20;
   static energyPerRadUnit = 10;
@@ -48,6 +47,7 @@ export class Reactor {
   private _fuelUsage = 0;
   private _isActivelyCooled = false;
   private _blockCounts = new Map<Block, number>();
+  private _currentFuel: Fuel = Fuel.Uranium;
 
   get insertionRatio() {
     return this._insertionRatio;
@@ -85,6 +85,9 @@ export class Reactor {
   get blockCounts(): ReadonlyMap<Block, number> {
     return new Map(this._blockCounts);
   }
+  get currentFuel() {
+    return this._currentFuel;
+  }
 
   private fertility = 0;
   private controlRodPositions: [number, number][];
@@ -109,7 +112,7 @@ export class Reactor {
     this.width = width;
     this.depth = depth;
     this.height = height;
-    this.currentFuel = currentFuel;
+    this._currentFuel = currentFuel;
     this._insertionRatio = insertionRatio;
     this._isActivelyCooled = activelyCooled;
 
@@ -180,7 +183,7 @@ export class Reactor {
   }
 
   clone(): Reactor {
-    const copy = new Reactor(this.width, this.depth, this.height, this._insertionRatio, this.currentFuel, this._isActivelyCooled);
+    const copy = new Reactor(this.width, this.depth, this.height, this._insertionRatio, this._currentFuel, this._isActivelyCooled);
 
     copy._fuelHeat = this._fuelHeat;
     copy._reactorHeat = this._reactorHeat;
@@ -224,6 +227,13 @@ export class Reactor {
 
   updateActivelyCooled(activelyCooled: boolean) {
     this._isActivelyCooled = activelyCooled;
+    this.recalculateFuelConstants();
+    this.reset();
+    this.simulate();
+  }
+
+  updateFuelSource(fuel: Fuel) {
+    this._currentFuel = fuel;
     this.recalculateFuelConstants();
     this.reset();
     this.simulate();
@@ -275,7 +285,7 @@ export class Reactor {
   }
 
   private recalculateFuelConstants() {
-    const currentFuelData = fuels.get(this.currentFuel)!;
+    const currentFuelData = fuels.get(this._currentFuel)!;
     const reactivity = currentFuelData.standardReactivity;
 
     this.insertion = this._insertionRatio / 100;

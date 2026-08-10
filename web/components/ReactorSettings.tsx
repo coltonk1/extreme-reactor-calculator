@@ -1,4 +1,5 @@
 import { PresetKey, presets } from '@/lib/configPresets';
+import { Fuel } from '@/lib/fuels';
 import { useReactorState } from '@/lib/useReactorState';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
@@ -18,7 +19,7 @@ export default function ReactorSettings({ reactorState }: { reactorState: Return
   }, [reactorState.reactorPowerProductionMultiplier, reactorState.powerProductionMultiplier, reactorState.fuelUsageMultiplier]);
 
   const reactorIsLarge = reactorState.reactor.height > 3 || reactorState.reactor.width > 3 || reactorState.reactor.depth > 3;
-  const isReinforced = reactorState.reinforcedPreferred || reactorIsLarge || reactorState.reactor.isActivelyCooled;
+  const isReinforced = reactorState.reinforcedPreferred || reactorIsLarge || reactorState.reactor.isActivelyCooled || reactorState.reactor.currentFuel === Fuel.Verderium;
 
   const isValidNumber = (num: string | number) => {
     return !isNaN(Number(num)) && Number(num) >= 0.499 && Number(num) <= 100.01;
@@ -231,6 +232,65 @@ export default function ReactorSettings({ reactorState }: { reactorState: Return
 
           {reactorIsLarge && <p className="text-xs text-red-400">Reinforced is required for the current dimensions.</p>}
           {reactorState.reactor.isActivelyCooled && <p className="text-xs text-red-400">Reinforced is required for active cooling.</p>}
+          {reactorState.reactor.currentFuel === Fuel.Verderium && <p className="text-xs text-red-400">Reinforced is required to use Verderium as fuel.</p>}
+        </div>
+
+        <hr className="border-neutral-700/50 my-1"></hr>
+
+        <div className="space-y-2 py-2">
+          <div>
+            <p className="text-sm font-medium">Fuel Source</p>
+          </div>
+          <div className="flex justify-between">
+            <button
+              type="button"
+              onClick={() => {
+                reactorState.setReactor(prev => {
+                  const next = prev.clone();
+                  next.updateFuelSource(Fuel.Uranium);
+                  return next;
+                });
+              }}
+              className={clsx(
+                'rounded border px-3 py-2 text-sm transition cursor-pointer',
+                reactorState.reactor.currentFuel === Fuel.Uranium ? 'border-blue-500 bg-blue-500/10 text-blue-300' : 'border-neutral-600 bg-neutral-800 text-neutral-300',
+              )}
+            >
+              Uranium / Yellorium
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                reactorState.setReactor(prev => {
+                  const next = prev.clone();
+                  next.updateFuelSource(Fuel.Blutonium);
+                  return next;
+                });
+              }}
+              className={clsx(
+                'rounded border px-3 py-2 text-sm transition cursor-pointer',
+                reactorState.reactor.currentFuel === Fuel.Blutonium ? 'border-blue-500 bg-blue-500/10 text-blue-300' : 'border-neutral-600 bg-neutral-800 text-neutral-300',
+              )}
+            >
+              Blutonium
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                reactorState.setReactor(prev => {
+                  const next = prev.clone();
+                  next.updateFuelSource(Fuel.Verderium);
+                  return next;
+                });
+              }}
+              className={clsx(
+                'rounded border px-3 py-2 text-sm transition cursor-pointer',
+                reactorState.reactor.currentFuel === Fuel.Verderium ? 'border-blue-500 bg-blue-500/10 text-blue-300' : 'border-neutral-600 bg-neutral-800 text-neutral-300',
+              )}
+            >
+              Verderium
+            </button>
+          </div>
         </div>
 
         <hr className="border-neutral-700/50 my-1"></hr>

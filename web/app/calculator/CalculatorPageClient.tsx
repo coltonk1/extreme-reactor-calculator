@@ -77,7 +77,20 @@ export default function Page() {
     if (reactorParam) {
       try {
         const decoded = JSON.parse(decompressFromEncodedURIComponent(reactorParam));
-        const { map, ratio, width, depth, height, isActivelyCooled, fuelUsageMultiplier, powerProductionMultiplier, reactorPowerProductionMultiplier, reinforcedPreferred, selectedPreset } = decoded;
+        const {
+          map,
+          ratio,
+          width,
+          depth,
+          height,
+          isActivelyCooled,
+          fuelUsageMultiplier,
+          powerProductionMultiplier,
+          reactorPowerProductionMultiplier,
+          reinforcedPreferred,
+          selectedPreset,
+          fuelSource,
+        } = decoded;
         const newReactor = new Reactor(width, depth, height, ratio, Fuel.Uranium, isActivelyCooled || false);
         map.forEach((row: number[], z: number) => {
           row.forEach((blockId: number, x: number) => {
@@ -85,13 +98,14 @@ export default function Page() {
           });
         });
 
-        newReactor.simulate();
+        newReactor.updateFuelSource(fuelSource ?? Fuel.Uranium);
 
         reactorState.setReinforcedPreferred(reinforcedPreferred || false);
         reactorState.setActivelyCooled(isActivelyCooled || false);
         reactorState.setFuelUsageMultiplier(fuelUsageMultiplier || presets.default.fuel);
         reactorState.setPowerProductionMultiplier(powerProductionMultiplier || presets.default.power);
         reactorState.setReactorPowerProductionMultiplier(reactorPowerProductionMultiplier || presets.default.reactorPower);
+
         reactorState.setReactor(newReactor);
         const matchedPreset = Object.entries(presets).find(([, preset]) => {
           return (
@@ -125,6 +139,7 @@ export default function Page() {
       reactorPowerProductionMultiplier: reactorState.reactorPowerProductionMultiplier,
       reinforcedPreferred: reactorState.reinforcedPreferred,
       selectedPreset: reactorState.selectedPreset,
+      fuelSource: reactorState.reactor.currentFuel,
     };
 
     const encoded = compressToEncodedURIComponent(JSON.stringify(reactorPayload));

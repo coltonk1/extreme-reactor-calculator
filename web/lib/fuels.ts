@@ -30,9 +30,10 @@ function addFuel(fuel: Fuel, data: number[]) {
   });
 }
 
-// todo: Add other fuels and ability to choose them
 function setupFuels() {
   addFuel(Fuel.Uranium, [1.5, 0.5, 1.0, 0.01, 0.0007, 1.05, 0.01]);
+  addFuel(Fuel.Blutonium, [2.23, 0.6, 2.0, 0.0137, 0.0006, 1.0871, 0.051]);
+  addFuel(Fuel.Verderium, [3.74, 0.8741, 2.0049, 0.0312, 0.0081, 1.0984, 0.0743]);
 }
 
 setupFuels();

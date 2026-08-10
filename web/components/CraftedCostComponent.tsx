@@ -1,4 +1,5 @@
 import { Block, BasicOrReinforcedBlocks, BlockNames } from '@/lib/blocks';
+import { Fuel } from '@/lib/fuels';
 import { useReactorState } from '@/lib/useReactorState';
 import Image from 'next/image';
 
@@ -11,7 +12,7 @@ export default function CraftedCostComponent({ reactorState }: { reactorState: R
         .map(([block, count], index) => {
           const reactorIsLarge = reactorState.reactor.height > 3 || reactorState.reactor.width > 3 || reactorState.reactor.depth > 3;
           let prepend = '';
-          const reactorIsReinforced = reactorIsLarge || reactorState.reactor.isActivelyCooled || reactorState.reinforcedPreferred;
+          const reactorIsReinforced = reactorIsLarge || reactorState.reactor.isActivelyCooled || reactorState.reinforcedPreferred || reactorState.reactor.currentFuel === Fuel.Verderium;
           if (BasicOrReinforcedBlocks.has(block)) {
             if (reactorIsReinforced) {
               prepend = 'Reinforced ';

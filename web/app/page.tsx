@@ -23,7 +23,7 @@ export default async function Page({ searchParams }: Props) {
   }
 
   return (
-    <div className="w-full overflow-y-auto h-full text-neutral-300">
+    <div className="w-full overflow-y-auto h-full text-neutral-400">
       <section className="w-full text-center px-6 py-20 hero-gradient">
         <div className="md:hidden max-w-md mx-auto rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 mb-4">
           <p className="text-sm text-red-200">
@@ -124,13 +124,136 @@ export default async function Page({ searchParams }: Props) {
         </div>
       </section>
 
+      <section id="moderator-stats" className="px-6 py-14">
+        <div className="max-w-3xl mx-auto space-y-4">
+          <h2 className="text-2xl font-semibold text-white">How moderator stats work</h2>
+
+          <p>
+            Each control rod emits radiation outward in the four cardinal directions. Radiation can travel up to 4 blocks from the control rod, excluding the control rod itself. Moderator properties
+            affect the radiation as it passes through these blocks.
+          </p>
+
+          <div className="rounded-sm overflow-hidden shadow-md w-full max-w-100 mx-auto">
+            <Image src="/moderator-example.png" loading="eager" width={798} height={380} className="w-full h-full" alt="Example showing moderator placement around reactor fuel rods" />
+          </div>
+
+          <h3 className="font-medium text-white">Absorption</h3>
+          <p>
+            Determines how much radiation a moderator absorbs. Higher values absorb more radiation, increasing potential reactor heat and power, but leave less radiation to continue farther along its
+            path.
+          </p>
+
+          <h3 className="font-medium text-white">Heat Efficiency</h3>
+          <p>
+            Determines how efficiently absorbed radiation is converted into reactor heat. Higher values produce more reactor heat from the same amount of absorbed radiation, increasing potential power
+            or steam production.
+          </p>
+          <h3 className="font-medium text-white">Moderation</h3>
+          <p>Determines how strongly a moderator reduces radiation hardness. Higher values soften radiation more, making it easier for blocks farther along the path to absorb.</p>
+          <h3 className="font-medium text-white">Heat Conductivity</h3>
+          <p>
+            Determines how quickly fuel heat is transferred into reactor heat. Higher values increase this transfer rate, increasing potential power or steam production. Heat conductivity only applies
+            to moderators directly adjacent to fuel rods.
+          </p>
+
+          <Link href="/moderator-stats" className="text-sm block text-blue-300 underline hover:text-neutral-300">
+            View all moderator stats
+          </Link>
+
+          <hr className="border-neutral-700/50 my-2"></hr>
+
+          <p>
+            If radiation encounters another control rod within its 4 block path, that interaction uses the selected fuel&apos;s absorption, hardness, and moderation properties instead of moderator
+            properties.
+          </p>
+
+          <p>Reactor heat is converted into RF/t with passive cooling or used to produce steam with active cooling.</p>
+
+          <h3 className="text-xl font-medium text-white">Fuel properties</h3>
+
+          <div className="space-y-4">
+            <p className="text-white font-medium">Moderation</p>
+            <p> Determines how strongly fuel reduces radiation hardness. Higher values soften radiation more, making it easier to absorb farther along the path.</p>
+
+            <p className="text-white font-medium">Absorption</p>
+            <p>
+              Determines how much radiation fuel rods absorb. Higher values increase fuel heat and fertility, but leave less radiation to continue farther. Higher fertility reduces fuel consumption.
+            </p>
+
+            <p className="text-white font-medium">Hardness</p>
+            <p> Determines how strongly radiation hardness limits fuel absorption. Higher values allow fuel rods to absorb harder radiation more effectively.</p>
+
+            <p className="text-white font-medium">
+              Radiation Production <span className="text-xs font-normal text-neutral-400">(Fission Events per Fuel Unit)</span>
+            </p>
+            <p> Determines how much radiation is produced from fuel. Higher values increase radiation output, which can increase heat, power, and steam production.</p>
+
+            <p className="text-white font-medium">
+              Fuel Consumption <span className="text-xs font-normal text-neutral-400">(Fuel Units per Fission Event)</span>
+            </p>
+            <p> Determines how much fuel is consumed per fission event. Higher values increase fuel usage.</p>
+
+            <p className="text-white font-medium">Reactivity</p>
+            <p> Determines how strongly radiation intensity scales. Higher values generally increase radiation output.</p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="border-b border-neutral-700 text-white">
+                  <tr>
+                    <th className="py-2 pr-4">Fuel</th>
+                    <th className="py-2 px-2">Moderation</th>
+                    <th className="py-2 px-2">Absorption</th>
+                    <th className="py-2 px-2">Hardness</th>
+                    <th className="py-2 px-2">Radiation Production</th>
+                    <th className="py-2 px-2">Fuel Consumption</th>
+                    <th className="py-2 px-2">Reactivity</th>
+                  </tr>
+                </thead>
+
+                <tbody className="text-neutral-400 tabular-nums">
+                  <tr className="border-b border-neutral-800">
+                    <td className="py-2 pr-4 text-white">Uranium</td>
+                    <td className="px-2">1.50</td>
+                    <td className="px-2">0.5000</td>
+                    <td className="px-2">1.0000</td>
+                    <td className="px-2">0.0100</td>
+                    <td className="px-2">0.0007</td>
+                    <td className="px-2">1.0500</td>
+                  </tr>
+
+                  <tr className="border-b border-neutral-800">
+                    <td className="py-2 pr-4 text-white">Blutonium</td>
+                    <td className="px-2">2.23</td>
+                    <td className="px-2">0.6000</td>
+                    <td className="px-2">2.0000</td>
+                    <td className="px-2">0.0137</td>
+                    <td className="px-2">0.0006</td>
+                    <td className="px-2">1.0871</td>
+                  </tr>
+
+                  <tr>
+                    <td className="py-2 pr-4 text-white">Verderium</td>
+                    <td className="px-2">3.74</td>
+                    <td className="px-2">0.8741</td>
+                    <td className="px-2">2.0049</td>
+                    <td className="px-2">0.0312</td>
+                    <td className="px-2">0.0081</td>
+                    <td className="px-2">1.0984</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="px-6 py-14">
         <div className="max-w-3xl mx-auto space-y-6">
           <h2 className="text-2xl font-semibold text-white">About the project</h2>
 
           <p>
             This project is inspired by the original Big Reactors planner at{' '}
-            <Link href="https://br.sidoh.org/" target="_blank" className="underline text-blue-400 hover:text-blue-300">
+            <Link href="https://br.sidoh.org/" target="_blank" className="text-blue-300 underline hover:text-neutral-300">
               br.sidoh.org
             </Link>
             , reimagined for Extreme Reactors 2 with a modern interface and implementation.
@@ -138,11 +261,11 @@ export default async function Page({ searchParams }: Props) {
 
           <p>
             It incorporates logic and structure from{' '}
-            <Link href="https://github.com/ZeroNoRyouki/ExtremeReactors2" target="_blank" className="underline text-blue-400 hover:text-blue-300">
+            <Link href="https://github.com/ZeroNoRyouki/ExtremeReactors2" target="_blank" className="text-blue-300 underline hover:text-neutral-300">
               Extreme Reactors 2
             </Link>
             . It also includes textures from Extreme Reactors 2 and{' '}
-            <Link href="https://github.com/mekanism/Mekanism" target="_blank" className="underline text-blue-400 hover:text-blue-300">
+            <Link href="https://github.com/mekanism/Mekanism" target="_blank" className="text-blue-300 underline hover:text-neutral-300">
               Mekanism
             </Link>
             , both under the MIT License.
@@ -185,13 +308,13 @@ export default async function Page({ searchParams }: Props) {
 
           <div className="space-y-2 text-neutral-400">
             <p>
-              <Link href="https://github.com/coltonk1/extreme-reactor-calculator" target="_blank" className="text-blue-400 hover:text-blue-300">
+              <Link href="https://github.com/coltonk1/extreme-reactor-calculator" target="_blank" className="text-blue-300 text-sm underline hover:text-neutral-300">
                 Calculator Source Code
               </Link>
             </p>
 
             <p>
-              <Link href="https://github.com/ZeroNoRyouki/ExtremeReactors2" target="_blank" className="text-blue-400 hover:text-blue-300">
+              <Link href="https://github.com/ZeroNoRyouki/ExtremeReactors2" target="_blank" className="text-blue-300 text-sm underline hover:text-neutral-300">
                 Extreme Reactors 2 Source Code
               </Link>
             </p>
@@ -200,7 +323,7 @@ export default async function Page({ searchParams }: Props) {
       </section>
 
       <section className="px-6 py-14">
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="max-w-3xl mx-auto space-y-4">
           <h2 className="text-2xl font-semibold text-white">Questions or Feedback</h2>
 
           <p>
@@ -211,13 +334,13 @@ export default async function Page({ searchParams }: Props) {
           <div className="space-y-2 text-neutral-400">
             <p>
               Email:{' '}
-              <Link href="mailto:coltonkaraffa@gmail.com" className="text-blue-400 hover:text-blue-300">
+              <Link href="mailto:coltonkaraffa@gmail.com" className="text-blue-300 text-sm underline hover:text-neutral-300">
                 coltonkaraffa@gmail.com
               </Link>
             </p>
 
             <p>
-              <Link href="https://github.com/coltonk1/extreme-reactor-calculator/issues" target="_blank" className="text-blue-400 hover:text-blue-300">
+              <Link href="https://github.com/coltonk1/extreme-reactor-calculator/issues" target="_blank" className="text-blue-300 text-sm underline hover:text-neutral-300">
                 GitHub Issue Tracker
               </Link>
             </p>
@@ -226,27 +349,25 @@ export default async function Page({ searchParams }: Props) {
       </section>
 
       <section className="px-6 py-14">
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="max-w-3xl mx-auto space-y-4">
           <h2 className="text-2xl font-semibold text-white">FAQ</h2>
 
-          <div className="space-y-5">
-            <div>
-              <h3 className="font-medium text-white">Is this calculator free?</h3>
-              <p className="text-neutral-400">Yes. The calculator is free and open source under the MIT License.</p>
-            </div>
-            <div>
-              <h3 className="font-medium text-white">Does the calculator work on mobile?</h3>
-              <p className="text-neutral-400">The calculator is currently designed for desktop browsers. Mobile devices are not supported.</p>
-            </div>
-            <div>
-              <h3 className="font-medium text-white">Does the calculator run locally?</h3>
-              <p className="text-neutral-400">Reactor calculations run in your browser. Anonymous analytics may be used to understand site traffic.</p>
-            </div>
+          <div>
+            <h3 className="font-medium text-white">Is this calculator free?</h3>
+            <p>Yes. The calculator is free and open source under the MIT License.</p>
+          </div>
+          <div>
+            <h3 className="font-medium text-white">Does the calculator work on mobile?</h3>
+            <p>The calculator is currently designed for desktop browsers. Mobile devices are not supported.</p>
+          </div>
+          <div>
+            <h3 className="font-medium text-white">Does the calculator run locally?</h3>
+            <p>Reactor calculations run in your browser. Anonymous analytics may be used to understand site traffic.</p>
+          </div>
 
-            <div>
-              <h3 className="font-medium text-white">Can I share a reactor design?</h3>
-              <p className="text-neutral-400">Yes. Reactor configurations can be shared through generated URLs or images.</p>
-            </div>
+          <div>
+            <h3 className="font-medium text-white">Can I share a reactor design?</h3>
+            <p>Yes. Reactor configurations can be shared through generated URLs or images.</p>
           </div>
         </div>
       </section>
@@ -255,7 +376,7 @@ export default async function Page({ searchParams }: Props) {
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h2 className="text-3xl font-semibold text-white">Ready to get started?</h2>
 
-          <p className="text-neutral-400">Open the calculator to design, simulate, and optimize your next Extreme Reactors 2 reactor.</p>
+          <p>Open the calculator to design, simulate, and optimize your next Extreme Reactors 2 reactor.</p>
 
           <Link href="/calculator" className="inline-block bg-blue-500 text-white rounded-md px-6 py-3 shadow-md hover:opacity-80 transition-opacity">
             Open Calculator

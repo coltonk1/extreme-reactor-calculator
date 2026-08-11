@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { clsx } from 'clsx';
 import { moderators } from '@/lib/moderators';
+import Link from 'next/link';
 
 export default function BlockPalette({ selectedBlock, setSelectedBlock }: { selectedBlock: Block; setSelectedBlock: React.Dispatch<React.SetStateAction<Block>> }) {
   const nextTitlePoints = [Block.ReactorControlRod, Block.Bronze, Block.RefinedObsidian];
@@ -59,6 +60,9 @@ export default function BlockPalette({ selectedBlock, setSelectedBlock }: { sele
           <p className="text-neutral-400">Heat Conductivity</p>
           <p className="text-white text-right tabular-nums">{(moderatorData && moderatorData.heatConductivity.toFixed(2)) || 'N/A'}</p>
         </div>
+        <Link href="/#moderator-stats" target="_blank" className="text-blue-300/75 text-sm underline hover:text-neutral-300">
+          How moderator stats work
+        </Link>
         <hr className="border-neutral-700/50 my-1"></hr>
         <input
           placeholder="Search..."

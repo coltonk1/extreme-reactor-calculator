@@ -74,7 +74,7 @@ export default function RootLayout({
           </Link>
         </footer>
 
-        <GoogleAnalytics gaId="G-5Q8T3VNG19" />
+        {process.env.NODE_ENV === 'production' && <GoogleAnalytics gaId="G-5Q8T3VNG19" />}
       </body>
     </html>
   );

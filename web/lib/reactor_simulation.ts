@@ -179,7 +179,10 @@ export class Reactor {
     }
 
     this._fuelUsage = output?.fuelUsage || 0;
-    console.log(`Simulation time: ${performance.now() - start} ms`);
+    const simulationTime = performance.now() - start;
+    if (simulationTime > 50) {
+      console.error('Simulation took longer than 50ms');
+    }
   }
 
   clone(): Reactor {

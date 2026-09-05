@@ -156,29 +156,89 @@ export class Reactor {
     else this.incrementBlockCount(block, this.height);
 
     this._reactorMap[z][x] = block;
-    this.recalculateHeatTransfer();
+
+    // Check surrounding blocks, if one is a control rod, recalculate heat transfer
+    for (const [dx, dz] of directions) {
+      const nx = x + dx;
+      const nz = z + dz;
+      const isOutOfBounds = 0 > nx || nx >= this.width || 0 > nz || nz >= this.depth;
+      if (isOutOfBounds) continue;
+
+      const surroundingBlock = this._reactorMap[nz][nx];
+      if (surroundingBlock === Block.ReactorControlRod) this.recalculateHeatTransfer();
+    }
+    // If current block is a control rod, recalculate heat transfer
+    if (block === Block.ReactorControlRod) this.recalculateHeatTransfer();
   }
 
-  simulate(_maxIterateAmount: number = 1500) {
+  simulate(_maxIterateAmount: number = 1500, _maxRounds: number = 15) {
     const start = performance.now();
-    let output = null;
-    let previousOutput = null;
 
     if (this._insertionRatio === 100) {
       this._steamGenerated = 0;
       return;
     }
 
-    for (let i = 0; i < _maxIterateAmount; i++) {
-      output = this.simulateTick();
+    // Benchmark over 10 seconds:
+    // - No acceleration: ~2,685 reactor simulations / sec
+    // - Anderson depth 1: ~11,420 reactor simulations / sec
+    //
+    // For a different small reactor, convergence required:
+    // - ~1,200 normal simulated ticks without acceleration
+    // - ~145 simulated ticks with depth 1 Anderson acceleration
+    //
+    // This is not exactly standard Anderson acceleration, since
+    // each round gets a new sequence of states instead of retaining
+    // a rolling window of states and residuals across rounds.
+    for (let round = 0; round < _maxRounds; round++) {
+      this.simulateTick();
+      const x0 = [this._fuelHeat, this._reactorHeat];
+      this.simulateTick();
+      const x1 = [this._fuelHeat, this._reactorHeat];
+      this.simulateTick();
+      const x2 = [this._fuelHeat, this._reactorHeat];
 
-      // This may cause some very small inaccuracies compared to full simulations, but is worth it for performance.
-      if (this.isNearlyEqual(output.fuelHeat, previousOutput?.fuelHeat || 0)) break;
+      const f0 = [x1[0] - x0[0], x1[1] - x0[1]];
+      const f1 = [x2[0] - x1[0], x2[1] - x1[1]];
+      const df = [f1[0] - f0[0], f1[1] - f0[1]];
 
-      previousOutput = output;
+      const denominator = df[0] * df[0] + df[1] * df[1];
+      if (denominator <= 1e-15) {
+        break;
+      }
+
+      const gamma = (df[0] * f1[0] + df[1] * f1[1]) / denominator;
+
+      const acceleratedFuelHeat = x2[0] - gamma * f1[0];
+      const acceleratedReactorHeat = x2[1] - gamma * f1[1];
+
+      if (!Number.isFinite(acceleratedFuelHeat) || !Number.isFinite(acceleratedReactorHeat) || acceleratedFuelHeat < 0 || acceleratedReactorHeat < 0) {
+        break;
+      }
+
+      this._fuelHeat = acceleratedFuelHeat;
+      this._reactorHeat = acceleratedReactorHeat;
     }
 
-    this._fuelUsage = output?.fuelUsage || 0;
+    // Finish with normal simulation ticks to converge
+    // any remaining error after Anderson acceleration.
+    this.simulateTick();
+    let previousFuelHeat = this.fuelHeat;
+    for (let i = 0; i < _maxIterateAmount; i++) {
+      this.simulateTick();
+
+      // This may cause some very small inaccuracies compared
+      // to full simulations, but is worth it for performance.
+      if (this.isNearlyEqual(this.fuelHeat, previousFuelHeat)) {
+        break;
+      }
+
+      previousFuelHeat = this.fuelHeat;
+    }
+
+    const output = this.simulateTick();
+    this._fuelUsage = output?.fuelUsage ?? 0;
+
     const simulationTime = performance.now() - start;
     if (simulationTime > 50) {
       console.error('Simulation took longer than 50ms');
@@ -309,14 +369,17 @@ export class Reactor {
   private recalculateHeatTransfer() {
     let output = 0;
 
+    const ironHeat = moderators.get(Block.Iron)!.heatConductivity;
+    const airHeat = moderators.get(Block.Air)!.heatConductivity;
+
     for (const [x, z] of this.controlRodPositions) {
       for (const [dx, dz] of directions) {
         const nx = x + dx;
         const nz = z + dz;
         const isOutOfBounds = 0 > nx || nx >= this.width || 0 > nz || nz >= this.depth;
 
-        if (isOutOfBounds) output += moderators.get(Block.Iron)!.heatConductivity;
-        else if (this._reactorMap[nz][nx] === Block.ReactorControlRod) output += moderators.get(Block.Air)!.heatConductivity;
+        if (isOutOfBounds) output += ironHeat;
+        else if (this._reactorMap[nz][nx] === Block.ReactorControlRod) output += airHeat;
         else output += moderators.get(this._reactorMap[nz][nx])!.heatConductivity;
       }
     }

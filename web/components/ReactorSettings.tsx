@@ -1,11 +1,13 @@
 import { PresetKey, presets } from '@/lib/configPresets';
 import { Fuel } from '@/lib/fuels';
 import { Reactor } from '@/lib/reactor_simulation';
-import { useReactorState } from '@/lib/useReactorState';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
+import { useReactorState } from './ReactorStateProvider';
 
-export default function ReactorSettings({ reactorState }: { reactorState: ReturnType<typeof useReactorState> }) {
+export default function ReactorSettings() {
+  const reactorState = useReactorState();
+
   const [ratioFound, setRatioFound] = useState(false);
 
   const [reactorPowerInputValue, setReactorPowerInputValue] = useState(reactorState.reactorPowerProductionMultiplier.toString());

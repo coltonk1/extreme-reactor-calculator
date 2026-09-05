@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import CalculatorPageClient from './CalculatorPageClient';
 import { Suspense } from 'react';
+import { ReactorStateProvider } from '@/components/ReactorStateProvider';
 
 export const metadata: Metadata = {
   alternates: {
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <Suspense fallback={<p>Loading calculator...</p>}>
-      <CalculatorPageClient />
+      <ReactorStateProvider>
+        <CalculatorPageClient />
+      </ReactorStateProvider>
     </Suspense>
   );
 }

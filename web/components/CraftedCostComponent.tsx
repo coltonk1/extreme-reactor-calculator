@@ -1,9 +1,11 @@
 import { Block, BasicOrReinforcedBlocks, BlockNames } from '@/lib/blocks';
 import { Fuel } from '@/lib/fuels';
-import { useReactorState } from '@/lib/useReactorState';
 import Image from 'next/image';
+import { useReactorState } from './ReactorStateProvider';
 
-export default function CraftedCostComponent({ reactorState }: { reactorState: ReturnType<typeof useReactorState> }) {
+export default function CraftedCostComponent() {
+  const reactorState = useReactorState();
+
   return (
     <div>
       {[...reactorState.reactor.blockCounts]

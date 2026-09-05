@@ -1,6 +1,7 @@
 import { Block } from '@/lib/blocks';
 import clsx from 'clsx';
 import { Dispatch, SetStateAction } from 'react';
+import { useReactorState } from './ReactorStateProvider';
 
 export default function ReactorItem({
   x,
@@ -9,7 +10,6 @@ export default function ReactorItem({
   rows,
   cols,
   block,
-  updateReactor,
   highlighted,
   setCurrentlyHovered,
 }: {
@@ -19,10 +19,12 @@ export default function ReactorItem({
   rows: number;
   cols: number;
   block: Block | null;
-  updateReactor: (x: number, z: number) => void;
   highlighted: boolean;
   setCurrentlyHovered: Dispatch<SetStateAction<number[]>>;
 }) {
+  const reactorState = useReactorState();
+  const updateReactor = reactorState.updateReactor;
+
   const getCasingImage = (x: number, z: number) => {
     const left = x === -1;
     const right = x === cols - 2;

@@ -1,12 +1,16 @@
 'use client';
-import { Reactor } from '@/lib/reactor_simulation';
-import ReactorItem from './ReactorItem';
 import { useState } from 'react';
+import ReactorItem from './ReactorItem';
+import { useReactorState } from './ReactorStateProvider';
 
-export default function ReactorGrid({ reactor, updateReactor, mode }: { reactor: Reactor; updateReactor: (x: number, z: number) => void; mode: 'replaceAll' | 'grid' | 'individual' }) {
+export default function ReactorGrid() {
+  const reactorState = useReactorState();
+  const reactor = reactorState.reactor;
   const reactorMap = reactor.reactorMap;
 
   const [currentlyHovered, setCurrentlyHovered] = useState([-1, -1]);
+
+  const mode = reactorState.mode;
 
   return (
     <div
@@ -53,7 +57,6 @@ export default function ReactorGrid({ reactor, updateReactor, mode }: { reactor:
             rows={reactor.depth + 2}
             cols={reactor.width + 2}
             block={!casing ? reactorMap[z - 1][x - 1] : null}
-            updateReactor={updateReactor}
             highlighted={shouldHighlight}
             setCurrentlyHovered={setCurrentlyHovered}
           />

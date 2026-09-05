@@ -1,23 +1,11 @@
 import { Block } from '@/lib/blocks';
 import clsx from 'clsx';
+import { useReactorState } from './ReactorStateProvider';
 
-export default function ReactorItem({
-  x,
-  z,
-  casing,
-  rows,
-  cols,
-  block,
-  updateReactor,
-}: {
-  x: number;
-  z: number;
-  casing: boolean;
-  rows: number;
-  cols: number;
-  block: Block | null;
-  updateReactor: (x: number, z: number) => void;
-}) {
+export default function ReactorItem({ x, z, casing, rows, cols, block }: { x: number; z: number; casing: boolean; rows: number; cols: number; block: Block | null }) {
+  const reactorState = useReactorState();
+  const updateReactor = reactorState.updateReactor;
+
   const getCasingImage = (x: number, z: number) => {
     const left = x === -1;
     const right = x === cols - 2;

@@ -1,19 +1,20 @@
-import { useState } from 'react';
-import { Fuel } from './fuels';
-import { Reactor } from './reactor_simulation';
-import { Block } from './blocks';
-import { PresetKey } from './configPresets';
+'use client';
 
-export function useReactorState() {
+import { createContext, ReactNode, useContext, useState } from 'react';
+
+import { Fuel } from '../lib/fuels';
+import { Reactor } from '../lib/reactor_simulation';
+import { Block } from '../lib/blocks';
+import { PresetKey } from '../lib/configPresets';
+
+function useCreateReactorState() {
   const [reactor, setReactor] = useState(new Reactor(7, 7, 7, 0, Fuel.Uranium, false));
   const [activelyCooled, setActivelyCooled] = useState(false);
   const [selectedBlock, setSelectedBlock] = useState(Block.Air);
-
   const [powerProductionMultiplier, setPowerProductionMultiplier] = useState(1);
   const [reactorPowerProductionMultiplier, setReactorPowerProductionMultiplier] = useState(1);
   const [fuelUsageMultiplier, setFuelUsageMultiplier] = useState(1);
   const [reinforcedPreferred, setReinforcedPreferred] = useState(false);
-
   const [selectedPreset, setSelectedPreset] = useState<PresetKey | 'CUSTOM'>('default');
 
   const resizeReactor = (newCols: number, newRows: number, newHeight: number) => {
@@ -21,10 +22,13 @@ export function useReactorState() {
   };
 
   const updateReactor = (x: number, z: number) => {
-    reactor.setBlock(z, x, selectedBlock);
-    reactor.reset();
-    reactor.simulate();
-    setReactor(reactor.clone());
+    setReactor(prev => {
+      const next = prev.clone();
+      next.setBlock(z, x, selectedBlock);
+      next.reset();
+      next.simulate();
+      return next;
+    });
   };
 
   const findOptimalRatio = () => {
@@ -67,17 +71,37 @@ export function useReactorState() {
     selectedBlock,
     setSelectedBlock,
     powerProductionMultiplier,
-    reactorPowerProductionMultiplier,
-    fuelUsageMultiplier,
-    reinforcedPreferred,
-    selectedPreset,
     setPowerProductionMultiplier,
+    reactorPowerProductionMultiplier,
     setReactorPowerProductionMultiplier,
+    fuelUsageMultiplier,
     setFuelUsageMultiplier,
+    reinforcedPreferred,
     setReinforcedPreferred,
+    selectedPreset,
     setSelectedPreset,
     resizeReactor,
     updateReactor,
     findOptimalRatio,
   };
+}
+
+type ReactorState = ReturnType<typeof useCreateReactorState>;
+
+const ReactorStateContext = createContext<ReactorState | null>(null);
+
+export function ReactorStateProvider({ children }: { children: ReactNode }) {
+  const state = useCreateReactorState();
+
+  return <ReactorStateContext.Provider value={state}>{children}</ReactorStateContext.Provider>;
+}
+
+export function useReactorState() {
+  const context = useContext(ReactorStateContext);
+
+  if (!context) {
+    throw new Error('useReactorState must be used inside ReactorStateProvider');
+  }
+
+  return context;
 }

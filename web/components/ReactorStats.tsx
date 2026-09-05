@@ -1,20 +1,14 @@
-import { Reactor } from '@/lib/reactor_simulation';
+import { useReactorState } from './ReactorStateProvider';
 
-export default function ReactorStats({
-  reactor,
-  activelyCooled,
-  powerProductionMultiplier,
-  reactorPowerProductionMultiplier,
-  fuelUsageMultiplier,
-  reinforcedPreferred,
-}: {
-  reactor: Reactor;
-  activelyCooled: boolean;
-  powerProductionMultiplier: number;
-  reactorPowerProductionMultiplier: number;
-  fuelUsageMultiplier: number;
-  reinforcedPreferred: boolean;
-}) {
+export default function ReactorStats() {
+  const reactorState = useReactorState();
+  const reactor = reactorState.reactor;
+  const activelyCooled = reactorState.activelyCooled;
+  const powerProductionMultiplier = reactorState.powerProductionMultiplier;
+  const reactorPowerProductionMultiplier = reactorState.reactorPowerProductionMultiplier;
+  const fuelUsageMultiplier = reactorState.fuelUsageMultiplier;
+  const reinforcedPreferred = reactorState.reinforcedPreferred;
+
   const reactorIsLarge = reactor.height > 3 || reactor.width > 3 || reactor.depth > 3;
   const reactorIsReinforced = reactorIsLarge || reactor.isActivelyCooled || reinforcedPreferred;
 

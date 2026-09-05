@@ -2,12 +2,12 @@ import { getCostOfBlock } from '@/lib/blockCosts';
 import { Block, BlockNames } from '@/lib/blocks';
 import { Fuel } from '@/lib/fuels';
 import { Material, MaterialNames } from '@/lib/materials';
-import { Reactor } from '@/lib/reactor_simulation';
-import { useReactorState } from '@/lib/useReactorState';
 import clsx from 'clsx';
 import { useState } from 'react';
+import { useReactorState } from './ReactorStateProvider';
 
-export default function RawCostComponent({ reactorState }: { reactorState: ReturnType<typeof useReactorState> }) {
+export default function RawCostComponent() {
+  const reactorState = useReactorState();
   const [steelAvailable, setSteelAvailable] = useState(true);
 
   const costTotals: Partial<Record<Block | Material, number>> = {};

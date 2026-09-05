@@ -2,12 +2,12 @@
 'use client';
 import BlockPalette from '@/components/BlockPalette';
 import ReactorGrid from '@/components/ReactorGrid';
+import { useReactorState } from '@/components/ReactorStateProvider';
 import Sidebar from '@/components/Sidebar';
 import { Block, BlockIds } from '@/lib/blocks';
 import { PresetKey, presets } from '@/lib/configPresets';
 import { Fuel } from '@/lib/fuels';
 import { Reactor } from '@/lib/reactor_simulation';
-import { useReactorState } from '@/lib/useReactorState';
 import clsx from 'clsx';
 import { toBlob } from 'html-to-image';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
@@ -506,12 +506,12 @@ export default function Page() {
           }}
         >
           {/* DISPLAYED REACTOR */}
-          <ReactorGrid reactor={reactorState.reactor} updateReactor={reactorState.updateReactor} />
+          <ReactorGrid />
         </div>
       </div>
 
       {/* RIGHT PANEL */}
-      <Sidebar reactorState={reactorState} />
+      <Sidebar />
     </div>
   );
 }

@@ -1,7 +1,10 @@
-import { Reactor } from '@/lib/reactor_simulation';
 import ReactorItem from './ReactorItem';
+import { useReactorState } from './ReactorStateProvider';
 
-export default function ReactorGrid({ reactor, updateReactor }: { reactor: Reactor; updateReactor: (x: number, z: number) => void }) {
+export default function ReactorGrid() {
+  const reactorState = useReactorState();
+
+  const reactor = reactorState.reactor;
   const reactorMap = reactor.reactorMap;
 
   return (
@@ -17,9 +20,7 @@ export default function ReactorGrid({ reactor, updateReactor }: { reactor: React
         const x = i % (reactor.width + 2);
         const z = Math.floor(i / (reactor.width + 2));
         const casing = x == 0 || z == 0 || x == reactor.width + 2 - 1 || z == reactor.depth + 2 - 1;
-        return (
-          <ReactorItem key={i} x={x - 1} z={z - 1} casing={casing} rows={reactor.depth + 2} cols={reactor.width + 2} block={!casing ? reactorMap[z - 1][x - 1] : null} updateReactor={updateReactor} />
-        );
+        return <ReactorItem key={i} x={x - 1} z={z - 1} casing={casing} rows={reactor.depth + 2} cols={reactor.width + 2} block={!casing ? reactorMap[z - 1][x - 1] : null} />;
       })}
     </div>
   );

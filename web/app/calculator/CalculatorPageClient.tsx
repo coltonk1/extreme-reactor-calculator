@@ -14,7 +14,10 @@ import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { CgColorBucket } from 'react-icons/cg';
 import { LuCheck, LuCopy, LuDownload, LuFolderOpen, LuLoader, LuSave, LuShare2, LuTrash2, LuX } from 'react-icons/lu';
+import { PiCursorBold } from 'react-icons/pi';
+import CheckerSvg from '@/public/checker';
 
 // TODO: Refactor this file to reduce overall complexity and imrpove readability.
 
@@ -483,6 +486,36 @@ export default function Page() {
           </div>
 
           <div
+            title="Place blocks individually"
+            className={clsx('p-2 rounded cursor-pointer text-xl ml-4', reactorState.mode === 'individual' ? 'bg-blue-500 text-blue-950' : 'bg-blue-500/50 text-blue-950 hover:bg-blue-500/75')}
+            onClick={() => {
+              reactorState.setMode('individual');
+            }}
+          >
+            <PiCursorBold />
+          </div>
+          <div
+            title="Replace all matching blocks"
+            className={clsx('p-2 rounded cursor-pointer text-xl', reactorState.mode === 'replaceAll' ? 'bg-blue-500 text-blue-950' : 'bg-blue-500/50 text-blue-950 hover:bg-blue-500/75')}
+            onClick={() => {
+              reactorState.setMode('replaceAll');
+            }}
+          >
+            <CgColorBucket />
+          </div>
+          <div
+            title="Place checkboard"
+            className={clsx('p-2 rounded cursor-pointer text-xl', reactorState.mode === 'grid' ? 'bg-blue-500 text-blue-950' : 'bg-blue-500/50 text-blue-950 hover:bg-blue-500/75')}
+            onClick={() => {
+              reactorState.setMode('grid');
+            }}
+          >
+            <div className="w-5 h-5 flex justify-center items-center relative">
+              <CheckerSvg className="w-4.5 h-4.5" />
+            </div>
+          </div>
+
+          <div
             title="Clear all blocks"
             className="bg-red-700 p-2 rounded text-red-200 text-xl cursor-pointer hover:opacity-80 relative group ml-4"
             onClick={() => {
@@ -506,7 +539,7 @@ export default function Page() {
           }}
         >
           {/* DISPLAYED REACTOR */}
-          <ReactorGrid reactor={reactorState.reactor} updateReactor={reactorState.updateReactor} />
+          <ReactorGrid reactor={reactorState.reactor} updateReactor={reactorState.updateReactor} mode={reactorState.mode} />
         </div>
       </div>
 

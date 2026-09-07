@@ -13,6 +13,7 @@ export function useReactorState() {
   const [reactorPowerProductionMultiplier, setReactorPowerProductionMultiplier] = useState(1);
   const [fuelUsageMultiplier, setFuelUsageMultiplier] = useState(1);
   const [reinforcedPreferred, setReinforcedPreferred] = useState(false);
+  const [mode, setMode] = useState<'individual' | 'replaceAll' | 'grid'>('individual');
 
   const [selectedPreset, setSelectedPreset] = useState<PresetKey | 'CUSTOM'>('default');
 
@@ -21,6 +22,27 @@ export function useReactorState() {
   };
 
   const updateReactor = (x: number, z: number) => {
+    if (mode === 'replaceAll') {
+      const replaceBlock = reactor.reactorMap[z][x];
+
+      for (let xGrid = 0; xGrid < reactor.width; xGrid++) {
+        for (let zGrid = 0; zGrid < reactor.depth; zGrid++) {
+          if (reactor.reactorMap[zGrid][xGrid] !== replaceBlock) continue;
+          reactor.setBlock(zGrid, xGrid, selectedBlock);
+        }
+      }
+    } else if (mode === 'grid') {
+      const xOffset = x % 2;
+      const zOffset = z % 2;
+
+      for (let xGrid = 0; xGrid < reactor.width; xGrid++) {
+        for (let zGrid = 0; zGrid < reactor.depth; zGrid++) {
+          if ((xGrid % 2 === xOffset && zGrid % 2 === zOffset) || (xGrid % 2 !== xOffset && zGrid % 2 !== zOffset)) {
+            reactor.setBlock(zGrid, xGrid, selectedBlock);
+          }
+        }
+      }
+    }
     reactor.setBlock(z, x, selectedBlock);
     reactor.reset();
     reactor.simulate();
@@ -79,5 +101,7 @@ export function useReactorState() {
     resizeReactor,
     updateReactor,
     findOptimalRatio,
+    mode,
+    setMode,
   };
 }

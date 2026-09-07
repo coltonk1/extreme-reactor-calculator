@@ -1,5 +1,6 @@
 import { Block } from '@/lib/blocks';
 import clsx from 'clsx';
+import { Dispatch, SetStateAction } from 'react';
 
 export default function ReactorItem({
   x,
@@ -9,6 +10,8 @@ export default function ReactorItem({
   cols,
   block,
   updateReactor,
+  highlighted,
+  setCurrentlyHovered,
 }: {
   x: number;
   z: number;
@@ -17,6 +20,8 @@ export default function ReactorItem({
   cols: number;
   block: Block | null;
   updateReactor: (x: number, z: number) => void;
+  highlighted: boolean;
+  setCurrentlyHovered: Dispatch<SetStateAction<number[]>>;
 }) {
   const getCasingImage = (x: number, z: number) => {
     const left = x === -1;
@@ -38,7 +43,7 @@ export default function ReactorItem({
 
   return (
     <div
-      className={clsx('bg-white/10 bg-cover select-none hover:bg-white', !casing && 'cursor-pointer hover:opacity-50')}
+      className={clsx('bg-white/10 bg-cover select-none hover:bg-white', !casing && 'cursor-pointer hover:opacity-50', !casing && highlighted && 'bg-white! opacity-50')}
       style={{
         backgroundImage: `${getCasingImage(x, z)}`,
         imageRendering: 'pixelated',
@@ -48,6 +53,7 @@ export default function ReactorItem({
         updateReactor(x, z);
       }}
       onMouseEnter={e => {
+        setCurrentlyHovered(() => [x, z]);
         if (casing) return;
         if (e.buttons === 1) {
           updateReactor(x, z);

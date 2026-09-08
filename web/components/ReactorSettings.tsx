@@ -1,5 +1,6 @@
 import { PresetKey, presets } from '@/lib/configPresets';
 import { Fuel } from '@/lib/fuels';
+import { Reactor } from '@/lib/reactor_simulation';
 import { useReactorState } from '@/lib/useReactorState';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
@@ -141,7 +142,7 @@ export default function ReactorSettings({ reactorState }: { reactorState: Return
         <div className="space-y-2 py-2">
           <div>
             <p className="text-sm font-medium">Inner Size</p>
-            <p className="text-xs text-neutral-500">Changing dimensions will reset the reactor</p>
+            <p className="text-xs text-neutral-500">Changing x or z dimensions will clear the reactor</p>
           </div>
 
           <div className="flex gap-2">
@@ -161,7 +162,24 @@ export default function ReactorSettings({ reactorState }: { reactorState: Return
               <input
                 className="w-full px-2 py-1 text-sm rounded bg-neutral-800 border border-neutral-600 text-white outline-none focus:bg-neutral-700 focus:border-neutral-400 text-right"
                 value={reactorState.reactor.height}
-                onChange={e => reactorState.resizeReactor(reactorState.reactor.width, reactorState.reactor.depth, Number(e.target.value))}
+                onChange={e => {
+                  const prevMap = reactorState.reactor.reactorMap;
+                  const newReactor = new Reactor(
+                    reactorState.reactor.width,
+                    reactorState.reactor.depth,
+                    Number(e.target.value),
+                    reactorState.reactor.insertionRatio,
+                    reactorState.reactor.currentFuel,
+                    reactorState.activelyCooled,
+                  );
+                  for (let x = 0; x < newReactor.width; x++) {
+                    for (let z = 0; z < newReactor.depth; z++) {
+                      newReactor.setBlock(z, x, prevMap[z][x]);
+                    }
+                  }
+                  newReactor.simulate();
+                  reactorState.setReactor(() => newReactor);
+                }}
               />
             </div>
 

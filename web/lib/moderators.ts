@@ -86,6 +86,43 @@ function setupModerators() {
   addModerator(Block.Allthemodium, [0.697, 0.942, 1 / 3.84, 3.65]);
   addModerator(Block.Vibranium, [0.24, 0.81, 1 / 7.47, 4.38]);
   addModerator(Block.Unobtainium, [0.972, 0.91, 1 / 3.074, 5.0]);
+
+  // Other
+
+  addModerator(Block.Draconium, [0.59, 0.88, 1 / 1.6, 3.3]);
+  addModerator(Block.AwakenedDraconium, [0.76, 0.88, 1 / 1.78, 4.8]);
+  addModerator(Block.Dragonsteel, [0.55, 0.81, 1 / 1.46, Conductivity.Silver]);
+  addModerator(Block.Twinite, [0.5, 0.78, 1 / 1.42, Conductivity.Copper]);
+  addModerator(Block.Shellite, [0.52, 0.78, 1 / 1.42, Conductivity.Gold]);
+
+  // More Fluids
+
+  addModerator(Block.LiquidStarlight, [0.92, 0.8, 1 / 2.0, Conductivity.Diamond]);
+  addModerator(Block.LifeEssence, [0.8, 0.55, 1 / 1.75, Conductivity.Emerald]);
+  addModerator(Block.HydrofluoricAcid, [0.68, 0.45, 1 / 1.4, Conductivity.Emerald]);
+  addModerator(Block.Sodium, [0.28, 0.6, 1 / 1.7, Conductivity.Copper]);
+  addModerator(Block.HydrogenChloride, [0.38, 0.65, 1 / 1.7, Conductivity.Copper]);
+  addModerator(Block.Ethene, [0.45, 0.65, 1 / 1.9, Conductivity.Silver]);
+  addModerator(Block.ThermalEnder, [0.92, 0.76, 1 / 2.02, Conductivity.Gold]);
+  addModerator(Block.ThermalRedstone, [0.77, 0.56, 1 / 1.61, Conductivity.Emerald]);
+
+  addModerator(Block.MoltenAllthemodium, [0.697, 0.942, 1 / 3.84, 3.65]);
+  addModerator(Block.MoltenVibranium, [0.24, 0.81, 1 / 7.47, 4.38]);
+  addModerator(Block.MoltenUnobtainium, [0.972, 0.91, 1 / 3.074, 5.0]);
+
+  // Not placeable
+  addModerator(Block.FlowingEthene, [0.37, 0.65, 1 / 1.9, Conductivity.Silver]);
+  addModerator(Block.FlowingSodium, [0.23, 0.6, 1 / 1.7, Conductivity.Copper]);
+  addModerator(Block.FlowingLiquidStarlight, [0.8, 0.85, 1 / 2.0, Conductivity.Diamond]);
+  addModerator(Block.FlowingLifeEssence, [0.7, 0.55, 1 / 1.75, Conductivity.Emerald]);
+  addModerator(Block.FlowingHydrofluoricAcid, [0.6, 0.45, 1 / 1.4, Conductivity.Emerald]);
+  addModerator(Block.FlowingHydrogenChloride, [0.31, 0.65, 1 / 1.7, Conductivity.Copper]);
+  addModerator(Block.FlowingThermalEnder, [0.9, 0.75, 1 / 2.0, Conductivity.Gold]);
+  addModerator(Block.FlowingThermalRedstone, [0.75, 0.55, 1 / 1.6, Conductivity.Emerald]);
+  addModerator(Block.FlowingCryomisi, [0.68, 0.49, 1 / 1.4, Conductivity.Emerald]);
+  addModerator(Block.FlowingTangerium, [0.84, 0.69, 1 / 1.7, Conductivity.Gold]);
+  addModerator(Block.FlowingRedfrigium, [0.57, 0.86, 1 / 5.0, Conductivity.Diamond]);
+  addModerator(Block.FlowingWater, [0.33, 0.5, 1 / 1.33, Conductivity.Water]);
 }
 
 setupModerators();

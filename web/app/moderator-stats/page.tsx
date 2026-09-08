@@ -30,19 +30,21 @@ export default function ModeratorsPage() {
               </thead>
 
               <tbody className="text-neutral-400 tabular-nums">
-                {[...moderators.entries()].map(([block, data], index, entries) => (
-                  <tr key={block} className={index !== entries.length - 1 ? 'border-b border-neutral-800' : ''}>
-                    <td className="py-2 pr-4 text-white">{BlockNames.get(block)}</td>
+                {[...moderators.entries()]
+                  .sort(([blockA], [blockB]) => (BlockNames.get(blockA) ?? '').localeCompare(BlockNames.get(blockB) ?? ''))
+                  .map(([block, data], index, entries) => (
+                    <tr key={block} className={index !== entries.length - 1 ? 'border-b border-neutral-800' : ''}>
+                      <td className="py-2 pr-4 text-white">{BlockNames.get(block)}</td>
 
-                    <td className="px-2 text-center">{data.absorption.toFixed(2)}</td>
+                      <td className="px-2 text-center">{data.absorption.toFixed(2)}</td>
 
-                    <td className="px-2 text-center">{data.heatEfficiency.toFixed(2)}</td>
+                      <td className="px-2 text-center">{data.heatEfficiency.toFixed(2)}</td>
 
-                    <td className="px-2 text-center">{(1 / data.inverseModeration).toFixed(2)}</td>
+                      <td className="px-2 text-center">{(1 / data.inverseModeration).toFixed(2)}</td>
 
-                    <td className="px-2 text-center">{data.heatConductivity.toFixed(2)}</td>
-                  </tr>
-                ))}
+                      <td className="px-2 text-center">{data.heatConductivity.toFixed(2)}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

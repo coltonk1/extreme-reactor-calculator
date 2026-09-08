@@ -11,6 +11,7 @@ enum Block {
   // Colorless = 'colorless',
   Ice = 'ice',
   Water = 'water',
+  FlowingWater = 'flowingwater',
 
   ReactorControlRod = 'reactorcontrolrod',
   FuelRod = 'fuelrod',
@@ -19,8 +20,11 @@ enum Block {
   ReactorAccessPort = 'accessport',
   Graphite = 'graphite',
   Cryomisi = 'cryomisi',
+  FlowingCryomisi = 'flowingcryomisi',
   Tangerium = 'tangerium',
+  FlowingTangerium = 'flowingtangerium',
   Redfrigium = 'redfrigium',
+  FlowingRedfrigium = 'flowingredfrigium',
 
   Bronze = 'bronze',
   Steel = 'steel',
@@ -40,6 +44,10 @@ enum Block {
   Allthemodium = 'allthemodium',
   Vibranium = 'vibranium',
   Unobtainium = 'unobtainium',
+  MoltenAllthemodium = 'moltenallthemodium',
+  MoltenVibranium = 'moltenvibranium',
+  MoltenUnobtainium = 'moltenunobtainium',
+
   DryIce = 'dryice',
   Cinnabar = 'cinnabar',
   Enderium = 'enderium',
@@ -50,69 +58,120 @@ enum Block {
   Elementium = 'elementium',
   Terrasteel = 'terrasteel',
   Apatite = 'apatite',
+
+  Draconium = 'draconium',
+  AwakenedDraconium = 'awakeneddraconium',
+  Dragonsteel = 'dragonsteel',
+  Twinite = 'twinite',
+  Shellite = 'shellite',
+
+  LiquidStarlight = 'liquidstarlight',
+  FlowingLiquidStarlight = 'flowingliquidstarlight',
+  LifeEssence = 'lifeessence',
+  FlowingLifeEssence = 'flowinglifeessence',
+  HydrofluoricAcid = 'hydrofluoricacid',
+  FlowingHydrofluoricAcid = 'flowinghydrofluoricacid',
+  Sodium = 'sodium',
+  FlowingSodium = 'flowingsodium',
+  HydrogenChloride = 'hydrogenchloride',
+  FlowingHydrogenChloride = 'flowinghydrogenchloride',
+  Ethene = 'ethene',
+  FlowingEthene = 'flowingethene',
+  ThermalEnder = 'thermalender',
+  FlowingThermalEnder = 'flowingthermalender',
+  ThermalRedstone = 'thermalredstone',
+  FlowingThermalRedstone = 'flowingthermalredstone',
 }
 
-// NotPlaceableBlocks will be excluded from being displayed on the Moderator list
-export const NotPlaceableBlocks = new Set<Block>([Block.ReactorAccessPort, Block.ReactorCasing, Block.ReactorController, Block.FuelRod]);
-// BasicOrReinforcedBlocks will display under build materials with 'Reinforced' or 'Basic' depending on reactor type
-export const BasicOrReinforcedBlocks = new Set<Block>([Block.ReactorAccessPort, Block.ReactorCasing, Block.ReactorControlRod, Block.ReactorController, Block.FuelRod]);
+type BlockData = {
+  name: string;
+  placeable: boolean;
+};
 
-const BlockNames = new Map([
-  [Block.Air, 'Air'],
-  [Block.ReactorControlRod, 'Reactor Control Rod'],
+// TODO: Add mod data to filter out blocks not in mods / modpacks
 
-  [Block.FuelRod, 'Reactor Fuel Rod'],
-  [Block.ReactorCasing, 'Reactor Casing'],
-  [Block.ReactorController, 'Reactor Controller'],
-  [Block.ReactorAccessPort, 'Reactor Access Port'],
-
-  // Solids
-  [Block.Apatite, 'Apatite'],
-  [Block.Cinnabar, 'Cinnabar'],
-  [Block.Iron, 'Iron Block'],
-  [Block.Manasteel, 'Manasteel Block'],
-  [Block.Elementium, 'Elementium Block'],
-  [Block.Nickel, 'Nickel Block'],
-  [Block.Gold, 'Gold Block'],
-  [Block.Diamond, 'Diamond Block'],
-  [Block.Netherite, 'Netherite Block'],
-  [Block.Terrasteel, 'Terrasteel Block'],
-  [Block.Emerald, 'Emerald Block'],
-  // [Block.Colorless, 'Glass'],
-  [Block.Copper, 'Copper Block'],
-  [Block.Brass, 'Brass Block'],
-  [Block.Osmium, 'Osmium Block'],
-  [Block.RefinedObsidian, 'Refined Obsidian Block'],
-  [Block.RefinedGlowstone, 'Refined Glowstone Block'],
-  [Block.Bronze, 'Bronze Block'],
-  [Block.Zinc, 'Zinc Block'],
-  [Block.Aluminum, 'Aluminum Block'],
-  [Block.Steel, 'Steel Block'],
-  [Block.Invar, 'Invar Block'],
-  [Block.Tin, 'Tin Block'],
-  [Block.Silver, 'Silver Block'],
-  [Block.Signalum, 'Signalum Block'],
-  [Block.Lumium, 'Lumium Block'],
-  [Block.Lead, 'Lead Block'],
-  [Block.Electrum, 'Electrum Block'],
-  [Block.Platinum, 'Platinum Block'],
-  [Block.Enderium, 'Enderium Block'],
-  [Block.Graphite, 'Graphite Block'],
-  [Block.Ice, 'Ice'],
-  [Block.DryIce, 'Dry Ice'],
-
-  // Liquids
-  [Block.Cryomisi, 'Cryomisi'],
-  [Block.Tangerium, 'Tangerium'],
-  [Block.Redfrigium, 'Redfrigium'],
-  [Block.Water, 'Water'],
-
-  // ATM
-  [Block.Unobtainium, 'Unobtainium'],
-  [Block.Vibranium, 'Vibranium'],
-  [Block.Allthemodium, 'Allthemodium'],
+const BlockDataMap = new Map<Block, BlockData>([
+  [Block.Air, { name: 'Air', placeable: true }],
+  [Block.ReactorControlRod, { name: 'Reactor Control Rod', placeable: true }],
+  [Block.FuelRod, { name: 'Reactor Fuel Rod', placeable: false }],
+  [Block.ReactorCasing, { name: 'Reactor Casing', placeable: false }],
+  [Block.ReactorController, { name: 'Reactor Controller', placeable: false }],
+  [Block.ReactorAccessPort, { name: 'Reactor Access Port', placeable: false }],
+  [Block.Apatite, { name: 'Apatite', placeable: true }],
+  [Block.Cinnabar, { name: 'Cinnabar', placeable: true }],
+  [Block.Iron, { name: 'Iron Block', placeable: true }],
+  [Block.Manasteel, { name: 'Manasteel Block', placeable: true }],
+  [Block.Elementium, { name: 'Elementium Block', placeable: true }],
+  [Block.Nickel, { name: 'Nickel Block', placeable: true }],
+  [Block.Gold, { name: 'Gold Block', placeable: true }],
+  [Block.Diamond, { name: 'Diamond Block', placeable: true }],
+  [Block.Netherite, { name: 'Netherite Block', placeable: true }],
+  [Block.Terrasteel, { name: 'Terrasteel Block', placeable: true }],
+  [Block.Emerald, { name: 'Emerald Block', placeable: true }],
+  [Block.Copper, { name: 'Copper Block', placeable: true }],
+  [Block.Brass, { name: 'Brass Block', placeable: true }],
+  [Block.Osmium, { name: 'Osmium Block', placeable: true }],
+  [Block.RefinedObsidian, { name: 'Refined Obsidian Block', placeable: true }],
+  [Block.RefinedGlowstone, { name: 'Refined Glowstone Block', placeable: true }],
+  [Block.Bronze, { name: 'Bronze Block', placeable: true }],
+  [Block.Zinc, { name: 'Zinc Block', placeable: true }],
+  [Block.Aluminum, { name: 'Aluminum Block', placeable: true }],
+  [Block.Steel, { name: 'Steel Block', placeable: true }],
+  [Block.Invar, { name: 'Invar Block', placeable: true }],
+  [Block.Tin, { name: 'Tin Block', placeable: true }],
+  [Block.Silver, { name: 'Silver Block', placeable: true }],
+  [Block.Signalum, { name: 'Signalum Block', placeable: true }],
+  [Block.Lumium, { name: 'Lumium Block', placeable: true }],
+  [Block.Lead, { name: 'Lead Block', placeable: true }],
+  [Block.Electrum, { name: 'Electrum Block', placeable: true }],
+  [Block.Platinum, { name: 'Platinum Block', placeable: true }],
+  [Block.Enderium, { name: 'Enderium Block', placeable: true }],
+  [Block.Graphite, { name: 'Graphite Block', placeable: true }],
+  [Block.Ice, { name: 'Ice', placeable: true }],
+  [Block.DryIce, { name: 'Dry Ice', placeable: true }],
+  [Block.Cryomisi, { name: 'Cryomisi', placeable: true }],
+  [Block.FlowingCryomisi, { name: 'Flowing Cryomisi', placeable: false }],
+  [Block.Tangerium, { name: 'Tangerium', placeable: true }],
+  [Block.FlowingTangerium, { name: 'Flowing Tangerium', placeable: false }],
+  [Block.Redfrigium, { name: 'Redfrigium', placeable: true }],
+  [Block.FlowingRedfrigium, { name: 'Flowing Redfrigium', placeable: false }],
+  [Block.Water, { name: 'Water', placeable: true }],
+  [Block.FlowingWater, { name: 'Flowing Water', placeable: false }],
+  [Block.Allthemodium, { name: 'Allthemodium', placeable: true }],
+  [Block.Vibranium, { name: 'Vibranium', placeable: true }],
+  [Block.Unobtainium, { name: 'Unobtainium', placeable: true }],
+  [Block.Draconium, { name: 'Draconium', placeable: true }],
+  [Block.AwakenedDraconium, { name: 'Awakened Draconium', placeable: true }],
+  [Block.Dragonsteel, { name: 'Dragonsteel', placeable: true }],
+  [Block.Twinite, { name: 'Twinite', placeable: true }],
+  [Block.Shellite, { name: 'Shellite', placeable: true }],
+  [Block.LiquidStarlight, { name: 'Liquid Starlight', placeable: true }],
+  [Block.FlowingLiquidStarlight, { name: 'Flowing Liquid Starlight', placeable: false }],
+  [Block.LifeEssence, { name: 'Life Essence', placeable: true }],
+  [Block.FlowingLifeEssence, { name: 'Flowing Life Essence', placeable: false }],
+  [Block.HydrofluoricAcid, { name: 'Hydrofluoric Acid', placeable: true }],
+  [Block.FlowingHydrofluoricAcid, { name: 'Flowing Hydrofluoric Acid', placeable: false }],
+  [Block.Sodium, { name: 'Sodium', placeable: true }],
+  [Block.FlowingSodium, { name: 'Flowing Sodium', placeable: false }],
+  [Block.HydrogenChloride, { name: 'Hydrogen Chloride', placeable: true }],
+  [Block.FlowingHydrogenChloride, { name: 'Flowing Hydrogen Chloride', placeable: false }],
+  [Block.Ethene, { name: 'Ethene', placeable: true }],
+  [Block.FlowingEthene, { name: 'Flowing Ethene', placeable: false }],
+  [Block.ThermalEnder, { name: 'Resonant Ender', placeable: true }],
+  [Block.FlowingThermalEnder, { name: 'Flowing Resonant Ender', placeable: false }],
+  [Block.ThermalRedstone, { name: 'Destabilized Redstone', placeable: true }],
+  [Block.FlowingThermalRedstone, { name: 'Flowing Destabilized Redstone', placeable: false }],
+  [Block.MoltenAllthemodium, { name: 'Molten Allthemodium', placeable: true }],
+  [Block.MoltenVibranium, { name: 'Molten Vibranium', placeable: true }],
+  [Block.MoltenUnobtainium, { name: 'Molten Unobtainium', placeable: true }],
 ]);
+
+const BlockNames = new Map([...BlockDataMap].map(([block, data]) => [block, data.name]));
+
+const NotPlaceableBlocks = new Set([...BlockDataMap].filter(([, data]) => !data.placeable).map(([block]) => block));
 
 const BlockIds = Object.fromEntries(Object.values(Block).map((block, i) => [block, i]));
 
-export { Block, BlockNames, BlockIds };
+export const BasicOrReinforcedBlocks = new Set<Block>([Block.ReactorAccessPort, Block.ReactorCasing, Block.ReactorControlRod, Block.ReactorController, Block.FuelRod]);
+
+export { Block, BlockNames, BlockIds, NotPlaceableBlocks };
